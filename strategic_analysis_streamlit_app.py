@@ -13,6 +13,7 @@ import os
 import hashlib
 import yaml
 from pathlib import Path
+from auth_database import get_auth_manager
 
 # Configuración de la página
 st.set_page_config(
@@ -132,46 +133,7 @@ def load_css():
     </style>
     """, unsafe_allow_html=True)
 
-# Sistema de autenticación simple
-class AuthManager:
-    def __init__(self):
-        self.users_file = "users.yaml"
-        self.load_users()
-    
-    def load_users(self):
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as f:
-                self.users = yaml.safe_load(f) or {}
-        else:
-            self.users = {}
-    
-    def save_users(self):
-        with open(self.users_file, 'w') as f:
-            yaml.dump(self.users, f)
-    
-    def hash_password(self, password):
-        return hashlib.sha256(password.encode()).hexdigest()
-    
-    def register_user(self, username, password, email):
-        if username in self.users:
-            return False, "Usuario ya existe"
-        
-        self.users[username] = {
-            'password': self.hash_password(password),
-            'email': email,
-            'created_at': datetime.now().isoformat(),
-            'analyses_count': 0
-        }
-        self.save_users()
-        return True, "Usuario registrado exitosamente"
-    
-    def authenticate(self, username, password):
-        if username not in self.users:
-            return False
-        return self.users[username]['password'] == self.hash_password(password)
-    
-    def get_user_info(self, username):
-        return self.users.get(username, {})
+
 
 # Clase principal para el análisis estratégico
 class StrategicAnalysis:
@@ -549,7 +511,7 @@ def main():
     if 'username' not in st.session_state:
         st.session_state.username = None
     
-    auth = AuthManager()
+    auth = get_auth_manager()
     
     # Sistema de autenticación
     if not st.session_state.authenticated:
@@ -603,6 +565,7 @@ def main():
                         padding: 1rem; border-radius: 10px; text-align: center;">
                 <h3>👋 Hola, {st.session_state.username}!</h3>
                 <p>Análisis realizados: {user_info.get('analyses_count', 0)}</p>
+                <p><small>Último acceso: {user_info.get('last_login', 'N/A')[:10] if user_info.get('last_login') else 'N/A'}</small></p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -646,8 +609,7 @@ def main():
                         analysis.perform_mckinsey_analysis()
                         
                         # Actualizar contador de análisis
-                        auth.users[st.session_state.username]['analyses_count'] = user_info.get('analyses_count', 0) + 1
-                        auth.save_users()
+                        auth.increment_analysis_count(st.session_state.username)
                         
                         st.success("¡Análisis completado exitosamente!")
                         
