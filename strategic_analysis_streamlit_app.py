@@ -592,28 +592,7 @@ def main():
         
         st.markdown("---")
         
-        # ===== NAVEGACIÓN SEGÚN SELECCIÓN =====
-        if selected_analysis == analysis_options[0]:  # Análisis Estratégico
-            # AQUÍ VA TODO TU CÓDIGO ACTUAL DEL ANÁLISIS ESTRATÉGICO
-            st.markdown("### 📊 Análisis Estratégico")
-            
-            # Upload de archivo
-            uploaded_file = st.file_uploader(
-                "Sube tu archivo Excel con datos de análisis estratégico",
-                type=['xlsx', 'xls'],
-                help="El archivo debe contener las hojas 'importancia' y 'desempeño'"
-            )
-            
-            # [TODO EL RESTO DE TU CÓDIGO ACTUAL VA AQUÍ SIN CAMBIOS]
-            # Es decir, desde "if uploaded_file is not None:" hasta el final
-            
-        elif selected_analysis == analysis_options[1]:  # Valor Percibido
-            # NUEVA SECCIÓN - ANÁLISIS DE VALOR PERCIBIDO
-            st.markdown("### 📊 Análisis de Valor Percibido")
-            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
-            
-            # Llamar a la función del nuevo módulo
-            analisis_valor_percibido()
+
 
 # ===== CÓDIGO COMPLETO PARA REEMPLAZAR =====
 # (Copia esto y reemplaza desde "# Interfaz principal de análisis" hasta antes del Footer)
