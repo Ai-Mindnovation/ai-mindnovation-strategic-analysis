@@ -14,6 +14,7 @@ import hashlib
 import yaml
 from pathlib import Path
 from auth_database import get_auth_manager
+from valor_percibido_streamlit import analisis_valor_percibido
 
 # Configuración de la página
 st.set_page_config(
@@ -574,238 +575,306 @@ def main():
                 st.session_state.username = None
                 st.rerun()
         
-        # Interfaz principal de análisis
-        st.markdown("### 📊 Análisis Estratégico")
+        # ===== SELECTOR DE ANÁLISIS (NUEVO) =====
+        st.markdown("### 🔬 Selecciona tu Análisis")
         
-        # Upload de archivo
-        uploaded_file = st.file_uploader(
-            "Sube tu archivo Excel con datos de análisis estratégico",
-            type=['xlsx', 'xls'],
-            help="El archivo debe contener las hojas 'importancia' y 'desempeño'"
+        # Opciones de análisis disponibles
+        analysis_options = [
+            "📈 Análisis Estratégico (Matrices DOFA, SPACE, McKinsey)",
+            "📊 Análisis de Valor Percibido (Comparación vs Competidores)"
+        ]
+        
+        selected_analysis = st.selectbox(
+            "¿Qué análisis deseas realizar?",
+            analysis_options,
+            help="Selecciona el tipo de análisis que mejor se adapte a tus necesidades"
         )
         
-        if uploaded_file is not None:
-            analysis = StrategicAnalysis()
+        st.markdown("---")
+        
+        # ===== NAVEGACIÓN SEGÚN SELECCIÓN =====
+        if selected_analysis == analysis_options[0]:  # Análisis Estratégico
+            # AQUÍ VA TODO TU CÓDIGO ACTUAL DEL ANÁLISIS ESTRATÉGICO
+            st.markdown("### 📊 Análisis Estratégico")
             
-            # Cargar datos
-            success, message = analysis.load_excel_data(uploaded_file)
+            # Upload de archivo
+            uploaded_file = st.file_uploader(
+                "Sube tu archivo Excel con datos de análisis estratégico",
+                type=['xlsx', 'xls'],
+                help="El archivo debe contener las hojas 'importancia' y 'desempeño'"
+            )
             
-            if success:
-                st.success(message)
+            # [TODO EL RESTO DE TU CÓDIGO ACTUAL VA AQUÍ SIN CAMBIOS]
+            # Es decir, desde "if uploaded_file is not None:" hasta el final
+            
+        elif selected_analysis == analysis_options[1]:  # Valor Percibido
+            # NUEVA SECCIÓN - ANÁLISIS DE VALOR PERCIBIDO
+            st.markdown("### 📊 Análisis de Valor Percibido")
+            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
+            
+            # Llamar a la función del nuevo módulo
+            analisis_valor_percibido()
+
+# ===== CÓDIGO COMPLETO PARA REEMPLAZAR =====
+# (Copia esto y reemplaza desde "# Interfaz principal de análisis" hasta antes del Footer)
+
+        # ===== SELECTOR DE ANÁLISIS =====
+        st.markdown("### 🔬 Selecciona tu Análisis")
+        
+        analysis_options = [
+            "📈 Análisis Estratégico (Matrices DOFA, SPACE, McKinsey)",
+            "📊 Análisis de Valor Percibido (Comparación vs Competidores)"
+        ]
+        
+        selected_analysis = st.selectbox(
+            "¿Qué análisis deseas realizar?",
+            analysis_options,
+            help="Selecciona el tipo de análisis que mejor se adapte a tus necesidades"
+        )
+        
+        st.markdown("---")
+        
+        # ===== ANÁLISIS ESTRATÉGICO (TU CÓDIGO ACTUAL) =====
+        if selected_analysis == analysis_options[0]:
+            st.markdown("### 📊 Análisis Estratégico")
+            
+            # Upload de archivo
+            uploaded_file = st.file_uploader(
+                "Sube tu archivo Excel con datos de análisis estratégico",
+                type=['xlsx', 'xls'],
+                help="El archivo debe contener las hojas 'importancia' y 'desempeño'"
+            )
+            
+            if uploaded_file is not None:
+                analysis = StrategicAnalysis()
                 
-                # Botón para ejecutar análisis
-                if st.button("🚀 Ejecutar Análisis Completo", key="analyze_btn"):
-                    with st.spinner("Procesando análisis estratégico..."):
-                        
-                        # Preparar datos
-                        success, msg = analysis.prepare_analysis_data()
-                        if not success:
-                            st.error(msg)
-                            return
-                        
-                        # Ejecutar análisis
-                        analysis.perform_dofa_analysis()
-                        analysis.perform_space_analysis()
-                        analysis.perform_mckinsey_analysis()
-                        
-                        # Actualizar contador de análisis
-                        auth.increment_analysis_count(st.session_state.username)
-                        
-                        st.success("¡Análisis completado exitosamente!")
-                        
-                        # Mostrar resultados
-                        st.markdown("## 📈 Resultados del Análisis")
-                        
-                        # Métricas principales
-                        col1, col2, col3, col4 = st.columns(4)
-                        
-                        with col1:
-                            st.markdown(f"""
-                            <div class="metric-container">
-                                <div class="metric-value">{analysis.results['dofa']['tipo_entorno']}</div>
-                                <div class="metric-label">Tipo de Entorno</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        with col2:
-                            st.markdown(f"""
-                            <div class="metric-container">
-                                <div class="metric-value">{analysis.results['space']['tradicional']['recomendacion']}</div>
-                                <div class="metric-label">SPACE Tradicional</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        with col3:
-                            st.markdown(f"""
-                            <div class="metric-container">
-                                <div class="metric-value">{analysis.results['space']['ponderado']['recomendacion']}</div>
-                                <div class="metric-label">SPACE Ponderado</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        with col4:
-                            st.markdown(f"""
-                            <div class="metric-container">
-                                <div class="metric-value">{analysis.results['mckinsey']['recomendacion']}</div>
-                                <div class="metric-label">Recomendación McKinsey</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        st.markdown("---")
-                        
-                        # Recomendación final destacada
-                        space_rec = analysis.results['space']['ponderado']['recomendacion']
-                        mckinsey_rec = analysis.results['mckinsey']['recomendacion']
-                        
-                        st.markdown(f"""
-                        <div class="success-card">
-                            <h2>🎯 Recomendación Estratégica Final</h2>
-                            <h3>{mckinsey_rec} de forma {space_rec}</h3>
-                            <p>Basado en el análisis integrado de matrices SPACE ponderada y McKinsey</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Tabs con análisis detallados
-                        tab1, tab2, tab3, tab4 = st.tabs(["📊 DOFA", "🎯 SPACE", "📈 McKinsey", "📋 Datos"])
-                        
-                        with tab1:
-                            st.markdown("### Análisis DOFA del Entorno Organizacional")
+                # Cargar datos
+                success, message = analysis.load_excel_data(uploaded_file)
+                
+                if success:
+                    st.success(message)
+                    
+                    # Botón para ejecutar análisis
+                    if st.button("🚀 Ejecutar Análisis Completo", key="analyze_btn"):
+                        with st.spinner("Procesando análisis estratégico..."):
                             
-                            col1, col2 = st.columns([1, 1])
+                            # Preparar datos
+                            success, msg = analysis.prepare_analysis_data()
+                            if not success:
+                                st.error(msg)
+                                return
+                            
+                            # Ejecutar análisis
+                            analysis.perform_dofa_analysis()
+                            analysis.perform_space_analysis()
+                            analysis.perform_mckinsey_analysis()
+                            
+                            # Actualizar contador de análisis
+                            auth.increment_analysis_count(st.session_state.username)
+                            
+                            st.success("¡Análisis completado exitosamente!")
+                            
+                            # Mostrar resultados
+                            st.markdown("## 📈 Resultados del Análisis")
+                            
+                            # Métricas principales
+                            col1, col2, col3, col4 = st.columns(4)
                             
                             with col1:
-                                # Generar visualizaciones
-                                visualizations = analysis.generate_visualizations()
-                                if 'dofa' in visualizations:
-                                    st.plotly_chart(visualizations['dofa'], use_container_width=True)
+                                st.markdown(f"""
+                                <div class="metric-container">
+                                    <div class="metric-value">{analysis.results['dofa']['tipo_entorno']}</div>
+                                    <div class="metric-label">Tipo de Entorno</div>
+                                </div>
+                                """, unsafe_allow_html=True)
                             
                             with col2:
-                                dofa_results = analysis.results['dofa']
-                                st.markdown("#### Distribución de Variables:")
-                                for categoria, cantidad in dofa_results['variables_dofa'].items():
-                                    st.write(f"**{categoria}:** {cantidad} variables")
+                                st.markdown(f"""
+                                <div class="metric-container">
+                                    <div class="metric-value">{analysis.results['space']['tradicional']['recomendacion']}</div>
+                                    <div class="metric-label">SPACE Tradicional</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            with col3:
+                                st.markdown(f"""
+                                <div class="metric-container">
+                                    <div class="metric-value">{analysis.results['space']['ponderado']['recomendacion']}</div>
+                                    <div class="metric-label">SPACE Ponderado</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            with col4:
+                                st.markdown(f"""
+                                <div class="metric-container">
+                                    <div class="metric-value">{analysis.results['mckinsey']['recomendacion']}</div>
+                                    <div class="metric-label">Recomendación McKinsey</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            st.markdown("---")
+                            
+                            # Recomendación final destacada
+                            space_rec = analysis.results['space']['ponderado']['recomendacion']
+                            mckinsey_rec = analysis.results['mckinsey']['recomendacion']
+                            
+                            st.markdown(f"""
+                            <div class="success-card">
+                                <h2>🎯 Recomendación Estratégica Final</h2>
+                                <h3>{mckinsey_rec} de forma {space_rec}</h3>
+                                <p>Basado en el análisis integrado de matrices SPACE ponderada y McKinsey</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            # Tabs con análisis detallados
+                            tab1, tab2, tab3, tab4 = st.tabs(["📊 DOFA", "🎯 SPACE", "📈 McKinsey", "📋 Datos"])
+                            
+                            with tab1:
+                                st.markdown("### Análisis DOFA del Entorno Organizacional")
                                 
-                                st.markdown("#### Clasificación del Entorno:")
-                                st.info(f"**{dofa_results['tipo_entorno']}**")
-                        
-                        with tab2:
-                            st.markdown("### Análisis de Matriz SPACE")
-                            
-                            col1, col2 = st.columns([1, 1])
-                            
-                            with col1:
-                                st.markdown("#### SPACE Tradicional")
-                                if 'space_tradicional' in visualizations:
-                                    st.plotly_chart(visualizations['space_tradicional'], use_container_width=True)
+                                col1, col2 = st.columns([1, 1])
                                 
-                                space_trad = analysis.results['space']['tradicional']
-                                st.markdown("**Valores por dimensión:**")
-                                for dim, valor in space_trad['valores'].items():
-                                    st.write(f"**{dim.title()}:** {valor}")
-                                st.success(f"**Recomendación:** {space_trad['recomendacion']}")
-                            
-                            with col2:
-                                st.markdown("#### SPACE Ponderado")
-                                if 'space_ponderado' in visualizations:
-                                    st.plotly_chart(visualizations['space_ponderado'], use_container_width=True)
+                                with col1:
+                                    # Generar visualizaciones
+                                    visualizations = analysis.generate_visualizations()
+                                    if 'dofa' in visualizations:
+                                        st.plotly_chart(visualizations['dofa'], use_container_width=True)
                                 
-                                space_pond = analysis.results['space']['ponderado']
-                                st.markdown("**Valores ponderados por dimensión:**")
-                                for dim, valor in space_pond['valores'].items():
-                                    st.write(f"**{dim.title()}:** {valor}")
-                                st.success(f"**Recomendación:** {space_pond['recomendacion']}")
-                        
-                        with tab3:
-                            st.markdown("### Análisis de Matriz McKinsey/Interna-Externa")
+                                with col2:
+                                    dofa_results = analysis.results['dofa']
+                                    st.markdown("#### Distribución de Variables:")
+                                    for categoria, cantidad in dofa_results['variables_dofa'].items():
+                                        st.write(f"**{categoria}:** {cantidad} variables")
+                                    
+                                    st.markdown("#### Clasificación del Entorno:")
+                                    st.info(f"**{dofa_results['tipo_entorno']}**")
                             
-                            col1, col2 = st.columns([2, 1])
-                            
-                            with col1:
-                                if 'mckinsey' in visualizations:
-                                    st.plotly_chart(visualizations['mckinsey'], use_container_width=True)
-                            
-                            with col2:
-                                mckinsey_results = analysis.results['mckinsey']
+                            with tab2:
+                                st.markdown("### Análisis de Matriz SPACE")
                                 
-                                st.markdown("#### Puntuaciones:")
-                                st.metric("Factores Internos", mckinsey_results['prom_internas'])
-                                st.metric("Factores Externos", mckinsey_results['prom_externas'])
+                                col1, col2 = st.columns([1, 1])
                                 
-                                st.markdown("#### Interpretación:")
-                                st.info(f"**{mckinsey_results['recomendacion']}**")
+                                with col1:
+                                    st.markdown("#### SPACE Tradicional")
+                                    if 'space_tradicional' in visualizations:
+                                        st.plotly_chart(visualizations['space_tradicional'], use_container_width=True)
+                                    
+                                    space_trad = analysis.results['space']['tradicional']
+                                    st.markdown("**Valores por dimensión:**")
+                                    for dim, valor in space_trad['valores'].items():
+                                        st.write(f"**{dim.title()}:** {valor}")
+                                    st.success(f"**Recomendación:** {space_trad['recomendacion']}")
                                 
-                                # Explicación de la recomendación
-                                recom_explicacion = {
-                                    'Crecer': '🚀 Posición fuerte en mercado atractivo. Invertir para maximizar crecimiento.',
-                                    'Crecer Selectivamente Portafolios': '📊 Fortalezas internas con mercado moderado. Enfocar recursos en áreas clave.',
-                                    'Crecer Selectivamente Mercados': '🎯 Mercado atractivo pero capacidades limitadas. Desarrollar competencias.',
-                                    'Mantener': '⚖️ Posición equilibrada. Mantener posición actual y mejorar eficiencias.',
-                                    'Reducir': '📉 Posición débil en mercado poco atractivo. Considerar desinversión.'
-                                }
+                                with col2:
+                                    st.markdown("#### SPACE Ponderado")
+                                    if 'space_ponderado' in visualizations:
+                                        st.plotly_chart(visualizations['space_ponderado'], use_container_width=True)
+                                    
+                                    space_pond = analysis.results['space']['ponderado']
+                                    st.markdown("**Valores ponderados por dimensión:**")
+                                    for dim, valor in space_pond['valores'].items():
+                                        st.write(f"**{dim.title()}:** {valor}")
+                                    st.success(f"**Recomendación:** {space_pond['recomendacion']}")
+                            
+                            with tab3:
+                                st.markdown("### Análisis de Matriz McKinsey/Interna-Externa")
                                 
-                                st.markdown("#### Estrategia Recomendada:")
-                                st.write(recom_explicacion.get(mckinsey_results['recomendacion'], 'Evaluar opciones estratégicas'))
-                        
-                        with tab4:
-                            st.markdown("### Datos del Análisis")
+                                col1, col2 = st.columns([2, 1])
+                                
+                                with col1:
+                                    if 'mckinsey' in visualizations:
+                                        st.plotly_chart(visualizations['mckinsey'], use_container_width=True)
+                                
+                                with col2:
+                                    mckinsey_results = analysis.results['mckinsey']
+                                    
+                                    st.markdown("#### Puntuaciones:")
+                                    st.metric("Factores Internos", mckinsey_results['prom_internas'])
+                                    st.metric("Factores Externos", mckinsey_results['prom_externas'])
+                                    
+                                    st.markdown("#### Interpretación:")
+                                    st.info(f"**{mckinsey_results['recomendacion']}**")
+                                    
+                                    # Explicación de la recomendación
+                                    recom_explicacion = {
+                                        'Crecer': '🚀 Posición fuerte en mercado atractivo. Invertir para maximizar crecimiento.',
+                                        'Crecer Selectivamente Portafolios': '📊 Fortalezas internas con mercado moderado. Enfocar recursos en áreas clave.',
+                                        'Crecer Selectivamente Mercados': '🎯 Mercado atractivo pero capacidades limitadas. Desarrollar competencias.',
+                                        'Mantener': '⚖️ Posición equilibrada. Mantener posición actual y mejorar eficiencias.',
+                                        'Reducir': '📉 Posición débil en mercado poco atractivo. Considerar desinversión.'
+                                    }
+                                    
+                                    st.markdown("#### Estrategia Recomendada:")
+                                    st.write(recom_explicacion.get(mckinsey_results['recomendacion'], 'Evaluar opciones estratégicas'))
                             
-                            # Mostrar resumen de datos procesados
-                            st.markdown("#### Variables Utilizadas en el Análisis:")
+                            with tab4:
+                                st.markdown("### Datos del Análisis")
+                                
+                                # Mostrar resumen de datos procesados
+                                st.markdown("#### Variables Utilizadas en el Análisis:")
+                                
+                                # Crear tabla resumen
+                                summary_data = analysis.analysis_data[['palabras_clave', 'clasificacion', 'dofa', 
+                                                                      'media_importancia', 'media_desemp']].copy()
+                                summary_data = summary_data.round(2)
+                                summary_data.columns = ['Variable', 'Clasificación SPACE', 'DOFA', 'Importancia', 'Desempeño']
+                                
+                                st.dataframe(summary_data, use_container_width=True)
+                                
+                                # Estadísticas por categoría
+                                st.markdown("#### Estadísticas por Categoría SPACE:")
+                                for categoria in ['Competitiva', 'Financiera', 'Industria', 'Entorno']:
+                                    subset = analysis.analysis_data[analysis.analysis_data['clasificacion'] == categoria]
+                                    if not subset.empty:
+                                        col1, col2, col3 = st.columns(3)
+                                        with col1:
+                                            st.metric(f"{categoria} - Variables", len(subset))
+                                        with col2:
+                                            st.metric(f"{categoria} - Importancia Promedio", round(subset['media_importancia'].mean(), 2))
+                                        with col3:
+                                            st.metric(f"{categoria} - Desempeño Promedio", round(subset['media_desemp'].mean(), 2))
                             
-                            # Crear tabla resumen
-                            summary_data = analysis.analysis_data[['palabras_clave', 'clasificacion', 'dofa', 
-                                                                  'media_importancia', 'media_desemp']].copy()
-                            summary_data = summary_data.round(2)
-                            summary_data.columns = ['Variable', 'Clasificación SPACE', 'DOFA', 'Importancia', 'Desempeño']
+                            # Botón de descarga de resultados
+                            st.markdown("---")
+                            st.markdown("### 💾 Descargar Resultados")
                             
-                            st.dataframe(summary_data, use_container_width=True)
+                            # Crear Excel con resultados
+                            output = io.BytesIO()
+                            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                                # Hoja con variables utilizadas
+                                summary_data.to_excel(writer, sheet_name='Variables_Analisis', index=False)
+                                
+                                # Hoja con resultados
+                                results_df = pd.DataFrame({
+                                    'Análisis': ['DOFA - Tipo Entorno', 'SPACE Tradicional', 'SPACE Ponderado', 'McKinsey', 'Recomendación Final'],
+                                    'Resultado': [
+                                        analysis.results['dofa']['tipo_entorno'],
+                                        analysis.results['space']['tradicional']['recomendacion'],
+                                        analysis.results['space']['ponderado']['recomendacion'],
+                                        analysis.results['mckinsey']['recomendacion'],
+                                        f"{mckinsey_rec} de forma {space_rec}"
+                                    ]
+                                })
+                                results_df.to_excel(writer, sheet_name='Resultados', index=False)
                             
-                            # Estadísticas por categoría
-                            st.markdown("#### Estadísticas por Categoría SPACE:")
-                            for categoria in ['Competitiva', 'Financiera', 'Industria', 'Entorno']:
-                                subset = analysis.analysis_data[analysis.analysis_data['clasificacion'] == categoria]
-                                if not subset.empty:
-                                    col1, col2, col3 = st.columns(3)
-                                    with col1:
-                                        st.metric(f"{categoria} - Variables", len(subset))
-                                    with col2:
-                                        st.metric(f"{categoria} - Importancia Promedio", round(subset['media_importancia'].mean(), 2))
-                                    with col3:
-                                        st.metric(f"{categoria} - Desempeño Promedio", round(subset['media_desemp'].mean(), 2))
-                        
-                        # Botón de descarga de resultados
-                        st.markdown("---")
-                        st.markdown("### 💾 Descargar Resultados")
-                        
-                        # Crear Excel con resultados
-                        output = io.BytesIO()
-                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                            # Hoja con variables utilizadas
-                            summary_data.to_excel(writer, sheet_name='Variables_Analisis', index=False)
+                            excel_data = output.getvalue()
                             
-                            # Hoja con resultados
-                            results_df = pd.DataFrame({
-                                'Análisis': ['DOFA - Tipo Entorno', 'SPACE Tradicional', 'SPACE Ponderado', 'McKinsey', 'Recomendación Final'],
-                                'Resultado': [
-                                    analysis.results['dofa']['tipo_entorno'],
-                                    analysis.results['space']['tradicional']['recomendacion'],
-                                    analysis.results['space']['ponderado']['recomendacion'],
-                                    analysis.results['mckinsey']['recomendacion'],
-                                    f"{mckinsey_rec} de forma {space_rec}"
-                                ]
-                            })
-                            results_df.to_excel(writer, sheet_name='Resultados', index=False)
-                        
-                        excel_data = output.getvalue()
-                        
-                        st.download_button(
-                            label="📊 Descargar Resultados en Excel",
-                            data=excel_data,
-                            file_name=f"analisis_estrategico_{st.session_state.username}_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        )
-            else:
-                st.error(message)
+                            st.download_button(
+                                label="📊 Descargar Resultados en Excel",
+                                data=excel_data,
+                                file_name=f"analisis_estrategico_{st.session_state.username}_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+                else:
+                    st.error(message)
+        
+        # ===== ANÁLISIS DE VALOR PERCIBIDO (NUEVO) =====
+        elif selected_analysis == analysis_options[1]:
+            st.markdown("### 📊 Análisis de Valor Percibido")
+            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
+            
+            # Llamar a la función del nuevo módulo
+            analisis_valor_percibido()
         
         # Footer
         st.markdown("""
