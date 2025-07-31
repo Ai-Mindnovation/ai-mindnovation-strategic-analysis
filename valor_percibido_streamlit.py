@@ -83,6 +83,9 @@ def analisis_valor_percibido():
             
             st.success(f"✅ Se encontraron {len(competidor_cols)} competidores: {', '.join(competidor_cols)}")
             
+            st.write("🔍 **Debug - Columnas en desempeño:**", list(df_desemp.columns))
+            st.write("🏢 **Competidores detectados:**", competidor_cols)
+            
             # Selección de competidores a incluir en el análisis
             st.subheader("🏢 Selecciona los competidores a comparar")
             competidores_seleccionados = st.multiselect(

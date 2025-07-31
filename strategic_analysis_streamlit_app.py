@@ -853,14 +853,7 @@ def main():
                 else:
                     st.error(message)
         
-        # ===== ANÁLISIS DE VALOR PERCIBIDO =====
-        elif selected_analysis == analysis_options[1]:
-            st.markdown("### 📊 Análisis de Valor Percibido")
-            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
-            
-            # Llamar a la función del nuevo módulo
-            analisis_valor_percibido()
-        
+               
         # Footer
         st.markdown("""
         <div class="footer">
