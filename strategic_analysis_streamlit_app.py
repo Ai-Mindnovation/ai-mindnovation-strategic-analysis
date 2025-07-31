@@ -618,7 +618,7 @@ def main():
 # ===== CÓDIGO COMPLETO PARA REEMPLAZAR =====
 # (Copia esto y reemplaza desde "# Interfaz principal de análisis" hasta antes del Footer)
 
-        # ===== SELECTOR DE ANÁLISIS =====
+# ===== SELECTOR DE ANÁLISIS =====
         st.markdown("### 🔬 Selecciona tu Análisis")
         
         analysis_options = [
@@ -634,7 +634,7 @@ def main():
         
         st.markdown("---")
         
-        # ===== ANÁLISIS ESTRATÉGICO (TU CÓDIGO ACTUAL) =====
+        # ===== ANÁLISIS ESTRATÉGICO =====
         if selected_analysis == analysis_options[0]:
             st.markdown("### 📊 Análisis Estratégico")
             
@@ -868,7 +868,7 @@ def main():
                 else:
                     st.error(message)
         
-        # ===== ANÁLISIS DE VALOR PERCIBIDO (NUEVO) =====
+        # ===== ANÁLISIS DE VALOR PERCIBIDO =====
         elif selected_analysis == analysis_options[1]:
             st.markdown("### 📊 Análisis de Valor Percibido")
             st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
