@@ -601,11 +601,7 @@ def main():
         # ===== ANÁLISIS ESTRATÉGICO =====
         if selected_analysis == analysis_options[0]:
             st.markdown("### 📊 Análisis Estratégico")
-        
-        elif selected_analysis == analysis_options[1]:  # Valor Percibido
-            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
-            analisis_valor_percibido()
-    
+            
             # Upload de archivo
             uploaded_file = st.file_uploader(
                 "Sube tu archivo Excel con datos de análisis estratégico",
@@ -835,7 +831,12 @@ def main():
                             )
                 else:
                     st.error(message)
-        
+         
+        elif selected_analysis == analysis_options[1]:  # Valor Percibido
+            st.info("🆕 **Nueva funcionalidad** - Compara el desempeño de tu empresa vs competidores en atributos valorados por los clientes")
+            analisis_valor_percibido()
+    
+       
                
         # Footer
         st.markdown("""
