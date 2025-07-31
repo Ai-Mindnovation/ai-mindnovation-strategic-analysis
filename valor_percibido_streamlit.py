@@ -78,7 +78,8 @@ def analisis_valor_percibido():
                 st.dataframe(df_desemp.head(), use_container_width=True)
             
             # Identificar columnas de competidores automáticamente
-            competidor_cols = [col for col in df_desemp.columns if col not in ['empresa']]
+            competidor_cols = [col for col in df_desemp.columns 
+                   if col not in ['empresa', 'nro', 'palabras_clave']]
             
             st.success(f"✅ Se encontraron {len(competidor_cols)} competidores: {', '.join(competidor_cols)}")
             

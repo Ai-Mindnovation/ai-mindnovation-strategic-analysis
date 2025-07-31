@@ -618,21 +618,6 @@ def main():
 # ===== CÓDIGO COMPLETO PARA REEMPLAZAR =====
 # (Copia esto y reemplaza desde "# Interfaz principal de análisis" hasta antes del Footer)
 
-# ===== SELECTOR DE ANÁLISIS =====
-        st.markdown("### 🔬 Selecciona tu Análisis")
-        
-        analysis_options = [
-            "📈 Análisis Estratégico (Matrices DOFA, SPACE, McKinsey)",
-            "📊 Análisis de Valor Percibido (Comparación vs Competidores)"
-        ]
-        
-        selected_analysis = st.selectbox(
-            "¿Qué análisis deseas realizar?",
-            analysis_options,
-            help="Selecciona el tipo de análisis que mejor se adapte a tus necesidades"
-        )
-        
-        st.markdown("---")
         
         # ===== ANÁLISIS ESTRATÉGICO =====
         if selected_analysis == analysis_options[0]:
