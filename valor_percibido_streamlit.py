@@ -45,6 +45,13 @@ def analisis_valor_percibido():
         
         **Nota:** Ahora puedes usar nombres reales de competidores en lugar de 'compet_1', 'compet_2'
         """)
+        st.markdown("""
+        **⚠️ IMPORTANTE - Formato del archivo:**
+        - Las hojas deben llamarse exactamente 'importancia' y 'desempeño'
+        - NO debe haber columnas duplicadas en el archivo
+        - Ambas hojas deben tener el mismo número de filas
+        - La primera fila debe contener los nombres de las columnas
+        """)
     
     # Upload del archivo
     uploaded_file = st.file_uploader(
@@ -91,8 +98,12 @@ def analisis_valor_percibido():
                     cols_desemp = ['empresa'] + competidores_seleccionados
                     desemp = df_desemp[cols_desemp]
                     
-                    # Unir datasets
-                    df = df_importancia.join(desemp)
+                    # Verificar y evitar conflictos de columnas
+                    if any(col in df_importancia.columns for col in desemp.columns):
+                        df = pd.concat([df_importancia.reset_index(drop=True), 
+                                        desemp.reset_index(drop=True)], axis=1)
+                    else:
+                        df = df_importancia.join(desemp)
                     
                     # Calcular medias
                     df['media_importancia'] = df[['imp_1', 'imp_2', 'imp_3', 'imp_4', 'imp_5']].mean(axis=1)
