@@ -2,106 +2,129 @@
 """
 Created on Thu Jul 31 12:24:37 2025
 
-@author: USER
+@author: Ai-mindnovation
 """
 
-# auth_database.py - Sistema de autenticación mejorado
-import streamlit as st
+# auth_database.py - Versión SQLite para persistencia mejorada
 import sqlite3
 import hashlib
+import streamlit as st
 from datetime import datetime
 import os
 
-class DatabaseAuthManager:
+class AuthManager:
     def __init__(self):
-        self.db_path = "users.db"
-        self.init_database()
+        # Usar directorio temporal que persiste más tiempo en Streamlit Cloud
+        self.db_path = "/tmp/ai_mindnovation_users.db"
+        self._init_database()
     
-    def init_database(self):
-        """Inicializar la base de datos de usuarios"""
+    def _init_database(self):
+        """Inicializar la base de datos SQLite y crear tabla de usuarios"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
+        # Crear tabla de usuarios si no existe
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                email TEXT NOT NULL,
+                username TEXT PRIMARY KEY,
                 password_hash TEXT NOT NULL,
+                email TEXT NOT NULL,
+                is_admin BOOLEAN DEFAULT 0,
                 created_at TEXT NOT NULL,
-                analyses_count INTEGER DEFAULT 0,
-                last_login TEXT
+                last_login TEXT,
+                analyses_count INTEGER DEFAULT 0
             )
         ''')
+        
+        # Crear usuario administrador por defecto si no existe
+        cursor.execute("SELECT username FROM users WHERE username = 'admin'")
+        if not cursor.fetchone():
+            admin_hash = self._hash_password("admin123")
+            cursor.execute('''
+                INSERT INTO users (username, password_hash, email, is_admin, created_at, analyses_count)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', ("admin", admin_hash, "admin@ai-mindnovation.com", True, datetime.now().isoformat(), 0))
+            
+            # Agregar usuario de demostración
+            demo_hash = self._hash_password("demo123")
+            cursor.execute('''
+                INSERT INTO users (username, password_hash, email, is_admin, created_at, analyses_count)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', ("demo", demo_hash, "demo@ai-mindnovation.com", False, datetime.now().isoformat(), 0))
         
         conn.commit()
         conn.close()
     
-    def hash_password(self, password):
-        """Encriptar contraseña"""
+    def _hash_password(self, password):
+        """Hashear contraseña usando SHA-256"""
         return hashlib.sha256(password.encode()).hexdigest()
     
-    def register_user(self, username, password, email):
-        """Registrar nuevo usuario"""
+    def authenticate(self, username, password):
+        """Autenticar usuario con username y password"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
+            cursor.execute("SELECT password_hash FROM users WHERE username = ?", (username,))
+            result = cursor.fetchone()
+            
+            if result:
+                stored_hash = result[0]
+                password_hash = self._hash_password(password)
+                
+                if stored_hash == password_hash:
+                    # Actualizar último login
+                    cursor.execute(
+                        "UPDATE users SET last_login = ? WHERE username = ?",
+                        (datetime.now().isoformat(), username)
+                    )
+                    conn.commit()
+                    conn.close()
+                    return True
+            
+            conn.close()
+            return False
+            
+        except Exception as e:
+            print(f"Error en autenticación: {e}")
+            return False
+    
+    def register_user(self, username, password, email):
+        """Registrar nuevo usuario"""
+        try:
+            # Validaciones
+            if len(password) < 6:
+                return False, "La contraseña debe tener al menos 6 caracteres"
+            
+            if not email or "@" not in email:
+                return False, "Email inválido"
+            
+            if not username or len(username) < 3:
+                return False, "El nombre de usuario debe tener al menos 3 caracteres"
+            
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
             # Verificar si el usuario ya existe
-            cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
+            cursor.execute("SELECT username FROM users WHERE username = ? OR email = ?", (username, email))
             if cursor.fetchone():
                 conn.close()
-                return False, "Usuario ya existe"
+                return False, "El usuario o email ya existe"
             
             # Crear nuevo usuario
+            password_hash = self._hash_password(password)
             cursor.execute('''
-                INSERT INTO users (username, email, password_hash, created_at, analyses_count)
+                INSERT INTO users (username, password_hash, email, created_at, analyses_count)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (username, email, self.hash_password(password), datetime.now().isoformat(), 0))
+            ''', (username, password_hash, email, datetime.now().isoformat(), 0))
             
             conn.commit()
             conn.close()
             return True, "Usuario registrado exitosamente"
             
         except Exception as e:
+            print(f"Error al registrar usuario: {e}")
             return False, f"Error al registrar usuario: {str(e)}"
-    
-    def authenticate(self, username, password):
-        """Autenticar usuario"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                SELECT password_hash FROM users WHERE username = ?
-            ''', (username,))
-            
-            result = cursor.fetchone()
-            conn.close()
-            
-            if result and result[0] == self.hash_password(password):
-                self.update_last_login(username)
-                return True
-            return False
-            
-        except Exception as e:
-            st.error(f"Error en autenticación: {str(e)}")
-            return False
-    
-    def update_last_login(self, username):
-        """Actualizar último login"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                UPDATE users SET last_login = ? WHERE username = ?
-            ''', (datetime.now().isoformat(), username))
-            
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            st.error(f"Error actualizando login: {str(e)}")
     
     def get_user_info(self, username):
         """Obtener información del usuario"""
@@ -110,7 +133,7 @@ class DatabaseAuthManager:
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT username, email, created_at, analyses_count, last_login
+                SELECT email, is_admin, created_at, last_login, analyses_count 
                 FROM users WHERE username = ?
             ''', (username,))
             
@@ -119,42 +142,42 @@ class DatabaseAuthManager:
             
             if result:
                 return {
-                    'username': result[0],
-                    'email': result[1],
-                    'created_at': result[2],
-                    'analyses_count': result[3],
-                    'last_login': result[4]
+                    "email": result[0],
+                    "is_admin": bool(result[1]),
+                    "created_at": result[2],
+                    "last_login": result[3],
+                    "analyses_count": result[4]
                 }
             return {}
             
         except Exception as e:
-            st.error(f"Error obteniendo info de usuario: {str(e)}")
+            print(f"Error al obtener info del usuario: {e}")
             return {}
     
     def increment_analysis_count(self, username):
-        """Incrementar contador de análisis"""
+        """Incrementar contador de análisis del usuario"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            cursor.execute('''
-                UPDATE users SET analyses_count = analyses_count + 1 
-                WHERE username = ?
-            ''', (username,))
-            
+            cursor.execute(
+                "UPDATE users SET analyses_count = analyses_count + 1 WHERE username = ?",
+                (username,)
+            )
             conn.commit()
             conn.close()
+            
         except Exception as e:
-            st.error(f"Error incrementando contador: {str(e)}")
+            print(f"Error al incrementar contador: {e}")
     
     def get_all_users(self):
-        """Obtener todos los usuarios (para admin)"""
+        """Obtener todos los usuarios (para panel administrativo)"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT username, email, created_at, analyses_count, last_login
+                SELECT username, email, is_admin, created_at, last_login, analyses_count 
                 FROM users ORDER BY created_at DESC
             ''')
             
@@ -162,46 +185,120 @@ class DatabaseAuthManager:
             conn.close()
             
             users = []
-            for result in results:
+            for row in results:
                 users.append({
-                    'username': result[0],
-                    'email': result[1],
-                    'created_at': result[2],
-                    'analyses_count': result[3],
-                    'last_login': result[4]
+                    "username": row[0],
+                    "email": row[1],
+                    "is_admin": bool(row[2]),
+                    "created_at": row[3],
+                    "last_login": row[4],
+                    "analyses_count": row[5]
                 })
             
             return users
             
         except Exception as e:
-            st.error(f"Error obteniendo usuarios: {str(e)}")
+            print(f"Error al obtener usuarios: {e}")
             return []
-
-# Función para migrar usuarios existentes de YAML a SQLite
-def migrate_yaml_to_sqlite():
-    """Migrar usuarios de users.yaml a base de datos SQLite"""
-    import yaml
     
-    yaml_file = "users.yaml"
-    if os.path.exists(yaml_file):
+    def delete_user(self, username):
+        """Eliminar usuario (para panel administrativo)"""
         try:
-            with open(yaml_file, 'r') as f:
-                yaml_users = yaml.safe_load(f) or {}
+            if username == "admin":
+                return False, "No se puede eliminar el usuario administrador"
             
-            db_auth = DatabaseAuthManager()
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
             
-            for username, user_data in yaml_users.items():
-                # No podemos migrar la contraseña hasheada directamente
-                # Los usuarios tendrán que registrarse de nuevo
-                st.info(f"Usuario {username} necesita registrarse nuevamente por migración de seguridad")
+            cursor.execute("DELETE FROM users WHERE username = ?", (username,))
             
-            # Opcional: Renombrar archivo YAML para backup
-            os.rename(yaml_file, f"{yaml_file}.backup")
+            if cursor.rowcount > 0:
+                conn.commit()
+                conn.close()
+                return True, "Usuario eliminado exitosamente"
+            else:
+                conn.close()
+                return False, "Usuario no encontrado"
+                
+        except Exception as e:
+            print(f"Error al eliminar usuario: {e}")
+            return False, f"Error al eliminar usuario: {str(e)}"
+    
+    def update_user_admin_status(self, username, is_admin):
+        """Cambiar estado de administrador de un usuario"""
+        try:
+            if username == "admin":
+                return False, "No se puede cambiar el estado del usuario administrador principal"
+            
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute(
+                "UPDATE users SET is_admin = ? WHERE username = ?",
+                (is_admin, username)
+            )
+            
+            if cursor.rowcount > 0:
+                conn.commit()
+                conn.close()
+                return True, f"Usuario {'promovido a' if is_admin else 'removido de'} administrador"
+            else:
+                conn.close()
+                return False, "Usuario no encontrado"
+                
+        except Exception as e:
+            print(f"Error al actualizar usuario: {e}")
+            return False, f"Error al actualizar usuario: {str(e)}"
+    
+    def get_stats(self):
+        """Obtener estadísticas generales (para panel administrativo)"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Total de usuarios
+            cursor.execute("SELECT COUNT(*) FROM users")
+            total_users = cursor.fetchone()[0]
+            
+            # Total de análisis realizados
+            cursor.execute("SELECT SUM(analyses_count) FROM users")
+            total_analyses = cursor.fetchone()[0] or 0
+            
+            # Usuarios activos (que han hecho login)
+            cursor.execute("SELECT COUNT(*) FROM users WHERE last_login IS NOT NULL")
+            active_users = cursor.fetchone()[0]
+            
+            # Usuario más activo
+            cursor.execute('''
+                SELECT username, analyses_count FROM users 
+                WHERE analyses_count > 0 
+                ORDER BY analyses_count DESC LIMIT 1
+            ''')
+            top_user = cursor.fetchone()
+            
+            conn.close()
+            
+            return {
+                "total_users": total_users,
+                "total_analyses": total_analyses,
+                "active_users": active_users,
+                "top_user": top_user[0] if top_user else "N/A",
+                "top_user_analyses": top_user[1] if top_user else 0
+            }
             
         except Exception as e:
-            st.error(f"Error en migración: {str(e)}")
+            print(f"Error al obtener estadísticas: {e}")
+            return {
+                "total_users": 0,
+                "total_analyses": 0,
+                "active_users": 0,
+                "top_user": "N/A",
+                "top_user_analyses": 0
+            }
 
-# Función para usar en el archivo principal
+# Función para obtener instancia del AuthManager
 def get_auth_manager():
-    """Obtener instancia del gestor de autenticación"""
-    return DatabaseAuthManager()
+    """Obtener instancia singleton del AuthManager"""
+    if 'auth_manager' not in st.session_state:
+        st.session_state.auth_manager = AuthManager()
+    return st.session_state.auth_manager
