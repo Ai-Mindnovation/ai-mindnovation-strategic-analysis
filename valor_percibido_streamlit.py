@@ -35,7 +35,7 @@ def analisis_valor_percibido():
         
         **Hoja 'importancia':**
         - palabras_clave: Atributos a evaluar
-        - imp_1, imp_2, imp_3, imp_4, imp_5: Evaluaciones de importancia (1-10)
+        - imp_1, imp_2, imp_3, imp_4, imp_5: Evaluaciones de importancia (1-5)
         
         **Hoja 'desempeño':**
         - empresa: Evaluación de tu empresa
