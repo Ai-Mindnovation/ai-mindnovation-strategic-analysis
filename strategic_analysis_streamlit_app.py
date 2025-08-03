@@ -408,13 +408,27 @@ class StrategicAnalysis:
             fig_space_trad.add_hline(y=0, line_dash="dash", line_color="black")
             fig_space_trad.add_vline(x=0, line_dash="dash", line_color="black")
             
+            # Agregar etiquetas de cuadrantes para SPACE Tradicional
+            fig_space_trad.add_annotation(x=1.5, y=1.5, text="AGRESIVA", showarrow=False, 
+                                         font=dict(size=12, color="green"))
+            fig_space_trad.add_annotation(x=-1.5, y=1.5, text="CONSERVADORA", showarrow=False, 
+                                         font=dict(size=12, color="blue"))
+            fig_space_trad.add_annotation(x=1.5, y=-1.5, text="COMPETITIVA", showarrow=False, 
+                                         font=dict(size=12, color="orange"))
+            fig_space_trad.add_annotation(x=-1.5, y=-1.5, text="DEFENSIVA", showarrow=False, 
+                             font=dict(size=12, color="red"))
+            
             fig_space_trad.update_layout(
                 title="Matriz SPACE Tradicional",
                 xaxis_title="Industria + Competitiva",
                 yaxis_title="Financiera + Entorno",
+                xaxis=dict(range=[-3, 3], zeroline=True, zerolinecolor="black", zerolinewidth=2),
+                yaxis=dict(range=[-3, 3], zeroline=True, zerolinecolor="black", zerolinewidth=2),
                 showlegend=True,
                 template="plotly_white",
-                font=dict(color="#1E5A73")
+                font=dict(color="#1E5A73"),
+                height=500,
+                width=500
             )
             
             visualizations['space_tradicional'] = fig_space_trad
@@ -435,13 +449,27 @@ class StrategicAnalysis:
             fig_space_pond.add_hline(y=0, line_dash="dash", line_color="black")
             fig_space_pond.add_vline(x=0, line_dash="dash", line_color="black")
             
+            # Agregar etiquetas de cuadrantes para SPACE Ponderado
+            fig_space_pond.add_annotation(x=1.5, y=1.5, text="AGRESIVA", showarrow=False, 
+                                         font=dict(size=12, color="green"))
+            fig_space_pond.add_annotation(x=-1.5, y=1.5, text="CONSERVADORA", showarrow=False, 
+                                         font=dict(size=12, color="blue"))
+            fig_space_pond.add_annotation(x=1.5, y=-1.5, text="COMPETITIVA", showarrow=False, 
+                                         font=dict(size=12, color="orange"))
+            fig_space_pond.add_annotation(x=-1.5, y=-1.5, text="DEFENSIVA", showarrow=False, 
+                                         font=dict(size=12, color="red"))
+            
             fig_space_pond.update_layout(
                 title="Matriz SPACE Ponderada",
                 xaxis_title="Industria + Competitiva (Ponderado)",
                 yaxis_title="Financiera + Entorno (Ponderado)",
+                xaxis=dict(range=[-3, 3], zeroline=True, zerolinecolor="black", zerolinewidth=2),
+                yaxis=dict(range=[-3, 3], zeroline=True, zerolinecolor="black", zerolinewidth=2),
                 showlegend=True,
                 template="plotly_white",
-                font=dict(color="#1E5A73")
+                font=dict(color="#1E5A73"),
+                height=500,
+                width=500
             )
             
             visualizations['space_ponderado'] = fig_space_pond
