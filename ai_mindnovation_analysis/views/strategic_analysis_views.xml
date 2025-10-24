@@ -1,0 +1,65 @@
+<odoo>
+    <record id="view_strategic_analysis_form" model="ir.ui.view">
+        <field name="name">ai_mindnovation.strategic.analysis.form</field>
+        <field name="model">ai_mindnovation.strategic.analysis</field>
+        <field name="arch" type="xml">
+            <form string="Análisis Estratégico AI Mindnovation">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="user_id"/>
+                        <field name="date"/>
+                        <field name="state"/>
+                    </group>
+                    <group>
+                        <field name="file_importancia" filename="file_importancia_filename"/>
+                        <field name="file_desempeno" filename="file_desempeno_filename"/>
+                    </group>
+                    <notebook>
+                        <page string="Variables">
+                            <field name="analysis_variable_ids">
+                                <tree editable="bottom">
+                                    <field name="nro"/>
+                                    <field name="palabras_clave"/>
+                                    <field name="descripcion"/>
+                                    <field name="dofa"/>
+                                    <field name="clasificacion"/>
+                                    <field name="media_importancia"/>
+                                    <field name="media_desemp"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Resultados">
+                            <field name="dofa_result"/>
+                            <field name="space_result"/>
+                            <field name="mckinsey_result"/>
+                            <field name="valor_percibido_result"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_strategic_analysis_tree" model="ir.ui.view">
+        <field name="name">ai_mindnovation.strategic.analysis.tree</field>
+        <field name="model">ai_mindnovation.strategic.analysis</field>
+        <field name="arch" type="xml">
+            <tree string="Análisis Estratégico">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_strategic_analysis" model="ir.actions.act_window">
+        <field name="name">Análisis Estratégico</field>
+        <field name="res_model">ai_mindnovation.strategic.analysis</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_strategic_analysis_root" name="AI Mindnovation" sequence="10"/>
+    <menuitem id="menu_strategic_analysis" name="Análisis Estratégico" parent="menu_strategic_analysis_root" action="action_strategic_analysis" sequence="20"/>
+</odoo>
