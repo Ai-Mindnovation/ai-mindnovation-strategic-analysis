@@ -4,16 +4,26 @@
         <field name="model">ai_mindnovation.strategic.analysis</field>
         <field name="arch" type="xml">
             <form string="Análisis Estratégico AI Mindnovation">
+                <header>
+                    <button name="process_analysis" string="Procesar Análisis" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,processed,done"/>
+                </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre del Análisis..."/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="name"/>
-                        <field name="user_id"/>
-                        <field name="date"/>
-                        <field name="state"/>
-                    </group>
-                    <group>
-                        <field name="file_importancia" filename="file_importancia_filename"/>
-                        <field name="file_desempeno" filename="file_desempeno_filename"/>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="file_importancia" filename="file_importancia_filename"/>
+                            <field name="file_desempeno" filename="file_desempeno_filename"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Variables">
@@ -29,10 +39,99 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Resultados">
-                            <field name="dofa_result"/>
-                            <field name="space_result"/>
-                            <field name="mckinsey_result"/>
+                        <page string="Análisis DOFA">
+                            <group>
+                                <group string="Conteo de Variables DOFA">
+                                    <field name="dofa_fortalezas"/>
+                                    <field name="dofa_debilidades"/>
+                                    <field name="dofa_oportunidades"/>
+                                    <field name="dofa_amenazas"/>
+                                    <field name="dofa_total"/>
+                                </group>
+                                <group string="Agrupaciones">
+                                    <field name="dofa_internas" string="Internas (F+D)"/>
+                                    <field name="dofa_externas" string="Externas (O+A)"/>
+                                    <field name="dofa_positivas" string="Positivas (F+O)"/>
+                                    <field name="dofa_negativas" string="Negativas (D+A)"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Proporciones (%)">
+                                    <field name="dofa_prop_internas" widget="percentage"/>
+                                    <field name="dofa_prop_externas" widget="percentage"/>
+                                    <field name="dofa_prop_positivas" widget="percentage"/>
+                                    <field name="dofa_prop_negativas" widget="percentage"/>
+                                </group>
+                                <group string="Clasificación del Entorno">
+                                    <field name="dofa_tipo_int_ext"/>
+                                    <field name="dofa_tipo_pos_neg"/>
+                                    <div class="alert alert-info" role="alert" style="margin-top: 10px;">
+                                        <strong>Tipo de Entorno:</strong>
+                                        <field name="dofa_tipo_entorno" class="oe_inline" readonly="1"/>
+                                    </div>
+                                </group>
+                            </group>
+                            <separator string="Detalles JSON (legacy)"/>
+                            <field name="dofa_result" widget="text" readonly="1"/>
+                        </page>
+                        <page string="Análisis SPACE">
+                            <group>
+                                <group string="SPACE Tradicional">
+                                    <field name="space_trad_competitiva"/>
+                                    <field name="space_trad_financiera"/>
+                                    <field name="space_trad_industria"/>
+                                    <field name="space_trad_entorno"/>
+                                    <separator string="Ejes"/>
+                                    <field name="space_trad_eje_x"/>
+                                    <field name="space_trad_eje_y"/>
+                                    <div class="alert alert-success" role="alert" style="margin-top: 10px;">
+                                        <strong>Recomendación Tradicional:</strong>
+                                        <field name="space_trad_recomendacion" class="oe_inline" readonly="1"/>
+                                    </div>
+                                </group>
+                                <group string="SPACE Ponderado">
+                                    <field name="space_pond_competitiva"/>
+                                    <field name="space_pond_financiera"/>
+                                    <field name="space_pond_industria"/>
+                                    <field name="space_pond_entorno"/>
+                                    <separator string="Ejes"/>
+                                    <field name="space_pond_eje_x"/>
+                                    <field name="space_pond_eje_y"/>
+                                    <div class="alert alert-success" role="alert" style="margin-top: 10px;">
+                                        <strong>Recomendación Ponderada:</strong>
+                                        <field name="space_pond_recomendacion" class="oe_inline" readonly="1"/>
+                                    </div>
+                                </group>
+                            </group>
+                            <separator string="Detalles JSON (legacy)"/>
+                            <field name="space_result" widget="text" readonly="1"/>
+                        </page>
+                        <page string="Análisis McKinsey">
+                            <group>
+                                <group string="Promedios Ponderados">
+                                    <field name="mckinsey_prom_internas" widget="float"/>
+                                    <field name="mckinsey_prom_externas" widget="float"/>
+                                </group>
+                                <group string="Posición en Matriz">
+                                    <div class="alert alert-info" role="alert" style="margin-top: 10px;">
+                                        <strong>Matriz 3x3:</strong>
+                                        <ul style="margin-top: 5px; margin-bottom: 0;">
+                                            <li>Alto: &gt; 3.0</li>
+                                            <li>Medio: 2.0 - 3.0</li>
+                                            <li>Bajo: &lt; 2.0</li>
+                                        </ul>
+                                    </div>
+                                </group>
+                            </group>
+                            <separator string="Recomendación Estratégica"/>
+                            <div class="alert alert-success" role="alert" style="margin: 10px 0;">
+                                <strong>Estrategia Recomendada:</strong>
+                                <field name="mckinsey_recomendacion" class="oe_inline" readonly="1"/>
+                            </div>
+                            <separator string="Detalles JSON (legacy)"/>
+                            <field name="mckinsey_result" widget="text" readonly="1"/>
+                        </page>
+                        <page string="Valor Percibido">
                             <field name="valor_percibido_result"/>
                         </page>
                     </notebook>
