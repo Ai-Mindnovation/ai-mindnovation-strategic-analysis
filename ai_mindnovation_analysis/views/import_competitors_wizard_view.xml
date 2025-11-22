@@ -15,10 +15,11 @@
         </field>
     </record>
 
-    <act_window id="action_import_competitors_wizard"
-        name="Importar Competidores"
-        res_model="ai_mindnovation.import.competitors.wizard"
-        view_mode="form"
-        target="new"
-        context="{}"/>
+    <record id="action_import_competitors_wizard" model="ir.actions.act_window">
+        <field name="name">Importar Competidores</field>
+        <field name="res_model">ai_mindnovation.import.competitors.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
 </odoo>

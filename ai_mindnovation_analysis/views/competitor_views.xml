@@ -49,7 +49,7 @@
                 <field name="num_variables"/>
             </tree>
             <header>
-                <button name="%(ai_mindnovation_analysis.action_import_competitors_wizard)d"
+                <button name="%(action_import_competitors_wizard)d"
                         string="Importar desde Excel"
                         type="action"
                         class="btn-secondary"
