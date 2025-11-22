@@ -334,8 +334,20 @@ class ValorPercibidoRadarChart extends Component {
         }
 
         // Obtener variables y competidores desde el registro
-        const variables = props.analysis_variable_ids || [];
+        let variables = props.analysis_variable_ids || [];
         const competidores = props.competitor_ids || [];
+
+        // Si variables llega como string (por error de serialización), intentar parsear
+        if (typeof variables === 'string') {
+            try {
+                variables = JSON.parse(variables);
+            } catch (e) {
+                variables = [];
+            }
+        }
+        if (!Array.isArray(variables)) {
+            variables = [];
+        }
 
         if (variables.length === 0) {
             // Sin variables, mostrar mensaje

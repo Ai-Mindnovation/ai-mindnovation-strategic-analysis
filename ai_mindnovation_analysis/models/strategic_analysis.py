@@ -15,8 +15,14 @@ class StrategicAnalysis(models.Model):
 
     name = fields.Char(string='Nombre del Análisis', required=True)
     user_id = fields.Many2one('res.users', string='Usuario', required=True, default=lambda self: self.env.user)
-    file_importancia = fields.Binary(string='Archivo Importancia')
-    file_desempeno = fields.Binary(string='Archivo Desempeño')
+    file_importancia = fields.Binary(
+        string='Archivo Importancia',
+        help="Ejemplo: Formulario_datos_entrada_analisis_tipo_estrategia.xlsx (hoja 'importancia'). Sube el mismo archivo en ambos campos."
+    )
+    file_desempeno = fields.Binary(
+        string='Archivo Desempeño',
+        help="Ejemplo: Formulario_datos_entrada_analisis_tipo_estrategia.xlsx (hoja 'desempeño'). Sube el mismo archivo en ambos campos."
+    )
     date = fields.Datetime(string='Fecha de Análisis', default=fields.Datetime.now)
     state = fields.Selection([
         ('draft', 'Borrador'),
@@ -699,7 +705,8 @@ class StrategicAnalysis(models.Model):
                 record.vp_debilidades = ''
                 record.vp_posicion_competitiva = False
                 record.valor_percibido_result = json.dumps({
-                    'error': 'Se requieren variables y al menos un competidor para análisis de Valor Percibido'
+                    'error': 'Se requieren variables y al menos un competidor para análisis de Valor Percibido',
+                    'variables': []
                 })
                 continue
             
@@ -783,6 +790,17 @@ class StrategicAnalysis(models.Model):
             record.vp_posicion_competitiva = posicion
             
             # Actualizar campo legacy (JSON)
+            # Construir lista de variables para el gráfico (puedes ajustar los campos según lo que espera el JS)
+            variables_list = []
+            for variable in variables:
+                variables_list.append({
+                    'nro': variable.nro,
+                    'palabras_clave': variable.palabras_clave,
+                    'descripcion': variable.descripcion,
+                    'media_importancia': variable.media_importancia,
+                    'media_desemp': variable.media_desemp
+                })
+
             vp_data = {
                 'desempeno_empresa': record.vp_desempeno_empresa,
                 'desempeno_mercado': record.vp_desempeno_mercado,
@@ -791,7 +809,8 @@ class StrategicAnalysis(models.Model):
                 'posicion_competitiva': posicion.replace('_', ' ').title(),
                 'fortalezas': fortalezas[:5],
                 'debilidades': debilidades[:5],
-                'num_competidores': len(record.competitor_ids)
+                'num_competidores': len(record.competitor_ids),
+                'variables': variables_list
             }
             record.valor_percibido_result = json.dumps(vp_data, indent=2, ensure_ascii=False)
 
@@ -1066,11 +1085,15 @@ class StrategicAnalysis(models.Model):
                 # Buscar datos de desempeño por índice
                 desempeno_row = df_desempeno.iloc[idx] if idx < len(df_desempeno) else None
                 
+                # Normalizar valor de dofa (acepta mayúsculas/minúsculas)
+                dofa_val = row.get('dofa')
+                if isinstance(dofa_val, str):
+                    dofa_val = dofa_val.strip().capitalize()
                 vals = {
                     'nro': int(row.get('nro')) if pd.notna(row.get('nro')) else idx + 1,
                     'palabras_clave': str(row.get('palabras_clave', '')),
                     'descripcion': str(row.get('descripcion', '')),
-                    'dofa': row.get('dofa'),
+                    'dofa': dofa_val,
                     'clasificacion': row.get('clasificacion'),
                     'imp_1': float(row.get('imp_1', 0)) if pd.notna(row.get('imp_1')) else 0,
                     'imp_2': float(row.get('imp_2', 0)) if pd.notna(row.get('imp_2')) else 0,

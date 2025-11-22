@@ -48,6 +48,13 @@
                 <field name="promedio_desempeno" widget="float"/>
                 <field name="num_variables"/>
             </tree>
+            <header>
+                <button name="%(ai_mindnovation_analysis.action_import_competitors_wizard)d"
+                        string="Importar desde Excel"
+                        type="action"
+                        class="btn-secondary"
+                        context="{'active_id': active_id}"/>
+            </header>
         </field>
     </record>
 
@@ -58,10 +65,5 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menú para competidores (opcional - también se puede acceder desde el análisis) -->
-    <menuitem id="menu_competitor" 
-              name="Competidores" 
-              parent="menu_strategic_analysis_root" 
-              action="action_competitor" 
-              sequence="30"/>
+    <!-- Menú para competidores se accede desde el análisis -->
 </odoo>

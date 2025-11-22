@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_import_competitors_wizard_form" model="ir.ui.view">
+        <field name="name">ai_mindnovation.import.competitors.wizard.form</field>
+        <field name="model">ai_mindnovation.import.competitors.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar Competidores desde Excel">
+                <group>
+                    <field name="file" filename="filename"/>
+                </group>
+                <footer>
+                    <button string="Importar" type="object" name="action_import" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="action_import_competitors_wizard"
+        name="Importar Competidores"
+        res_model="ai_mindnovation.import.competitors.wizard"
+        view_mode="form"
+        target="new"
+        context="{}"/>
+</odoo>

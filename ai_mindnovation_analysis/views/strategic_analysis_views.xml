@@ -125,9 +125,9 @@
                                     <div class="alert alert-info" role="alert" style="margin-top: 10px;">
                                         <strong>Matriz 3x3:</strong>
                                         <ul style="margin-top: 5px; margin-bottom: 0;">
-                                            <li>Alto: &gt; 3.0</li>
+                                            <li>Alto: mayor a 3.0</li>
                                             <li>Medio: 2.0 - 3.0</li>
-                                            <li>Bajo: &lt; 2.0</li>
+                                            <li>Bajo: menor a 2.0</li>
                                         </ul>
                                     </div>
                                 </group>
@@ -146,7 +146,7 @@
                             <group>
                                 <group string="Información General">
                                     <field name="num_competitors"/>
-                                    <button name="%(action_competitor)d" 
+                                    <button name="%(ai_mindnovation_analysis.action_competitor)d" 
                                             string="Gestionar Competidores" 
                                             type="action" 
                                             class="oe_highlight"

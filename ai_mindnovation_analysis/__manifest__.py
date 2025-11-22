@@ -8,9 +8,10 @@
     'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',
-        'views/assets.xml',
-        'views/strategic_analysis_views.xml',
         'views/competitor_views.xml',
+        'views/strategic_analysis_views.xml',
+        'views/import_competitors_wizard_view.xml',
+        'views/import_competitors_wizard_action.xml',
     ],
     'assets': {
         'web.assets_backend': [
