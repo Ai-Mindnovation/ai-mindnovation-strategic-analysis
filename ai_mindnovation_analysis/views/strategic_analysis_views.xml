@@ -7,6 +7,9 @@
                 <header>
                     <button name="process_analysis" string="Procesar Análisis" type="object" 
                             class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="export_to_excel" string="Exportar a Excel" type="object" 
+                            class="btn-success" icon="fa-download" 
+                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,processed,done"/>
                 </header>
                 <sheet>

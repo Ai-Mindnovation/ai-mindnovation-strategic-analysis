@@ -323,6 +323,10 @@ class StrategicAnalysis(models.Model):
     chart_space_pond = fields.Char(string='Gráfico SPACE Ponderado', compute='_compute_chart_fields')
     chart_mckinsey = fields.Char(string='Gráfico McKinsey', compute='_compute_chart_fields')
     chart_valor_percibido = fields.Char(string='Gráfico Valor Percibido', compute='_compute_chart_fields')
+    
+    # ===== CAMPOS PARA EXPORTACIÓN =====
+    export_file = fields.Binary(string='Archivo de Exportación', readonly=True, attachment=True)
+    export_filename = fields.Char(string='Nombre del Archivo')
 
     @api.depends('competitor_ids')
     def _compute_num_competitors(self):
@@ -790,6 +794,250 @@ class StrategicAnalysis(models.Model):
                 'num_competidores': len(record.competitor_ids)
             }
             record.valor_percibido_result = json.dumps(vp_data, indent=2, ensure_ascii=False)
+
+    def export_to_excel(self):
+        """
+        Exporta los resultados del análisis a un archivo Excel con múltiples hojas.
+        Replica la funcionalidad de exportación de Streamlit.
+        """
+        self.ensure_one()
+        
+        if not self.analysis_variable_ids:
+            raise UserError("No hay variables para exportar. Procese el análisis primero.")
+        
+        try:
+            # Crear archivo Excel en memoria
+            output = BytesIO()
+            
+            # Usar XlsxWriter en lugar de pandas ExcelWriter para mayor control
+            from xlsxwriter import Workbook
+            workbook = Workbook(output, {'in_memory': True})
+            
+            # Formatos
+            header_format = workbook.add_format({
+                'bold': True,
+                'bg_color': '#4CAF50',
+                'font_color': 'white',
+                'border': 1,
+                'align': 'center',
+                'valign': 'vcenter'
+            })
+            
+            number_format = workbook.add_format({'num_format': '0.00'})
+            percentage_format = workbook.add_format({'num_format': '0.00%'})
+            
+            # ===== HOJA 1: VARIABLES DE ANÁLISIS =====
+            ws_variables = workbook.add_worksheet('Variables_Analisis')
+            ws_variables.freeze_panes(1, 0)  # Congelar encabezados
+            
+            # Encabezados
+            headers_variables = [
+                'Nro', 'Palabras Clave', 'Descripción', 'DOFA', 'Clasificación',
+                'Imp 1', 'Imp 2', 'Imp 3', 'Imp 4', 'Imp 5', 'Media Importancia',
+                'Desemp 1', 'Desemp 2', 'Desemp 3', 'Desemp 4', 'Desemp 5', 'Media Desempeño'
+            ]
+            
+            for col, header in enumerate(headers_variables):
+                ws_variables.write(0, col, header, header_format)
+            
+            # Datos de variables
+            for row, var in enumerate(self.analysis_variable_ids.sorted('nro'), start=1):
+                ws_variables.write(row, 0, var.nro)
+                ws_variables.write(row, 1, var.palabras_clave or '')
+                ws_variables.write(row, 2, var.descripcion or '')
+                ws_variables.write(row, 3, var.dofa or '')
+                ws_variables.write(row, 4, var.clasificacion or '')
+                ws_variables.write(row, 5, var.imp_1, number_format)
+                ws_variables.write(row, 6, var.imp_2, number_format)
+                ws_variables.write(row, 7, var.imp_3, number_format)
+                ws_variables.write(row, 8, var.imp_4, number_format)
+                ws_variables.write(row, 9, var.imp_5, number_format)
+                ws_variables.write(row, 10, var.media_importancia, number_format)
+                ws_variables.write(row, 11, var.desemp_1, number_format)
+                ws_variables.write(row, 12, var.desemp_2, number_format)
+                ws_variables.write(row, 13, var.desemp_3, number_format)
+                ws_variables.write(row, 14, var.desemp_4, number_format)
+                ws_variables.write(row, 15, var.desemp_5, number_format)
+                ws_variables.write(row, 16, var.media_desemp, number_format)
+            
+            # Ajustar ancho de columnas
+            ws_variables.set_column('A:A', 6)
+            ws_variables.set_column('B:B', 25)
+            ws_variables.set_column('C:C', 40)
+            ws_variables.set_column('D:E', 15)
+            ws_variables.set_column('F:Q', 10)
+            
+            # ===== HOJA 2: RESULTADOS DE ANÁLISIS =====
+            ws_resultados = workbook.add_worksheet('Resultados')
+            
+            row = 0
+            
+            # ANÁLISIS DOFA
+            ws_resultados.write(row, 0, 'ANÁLISIS DOFA', header_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Fortalezas:')
+            ws_resultados.write(row, 1, self.dofa_fortalezas)
+            row += 1
+            ws_resultados.write(row, 0, 'Debilidades:')
+            ws_resultados.write(row, 1, self.dofa_debilidades)
+            row += 1
+            ws_resultados.write(row, 0, 'Oportunidades:')
+            ws_resultados.write(row, 1, self.dofa_oportunidades)
+            row += 1
+            ws_resultados.write(row, 0, 'Amenazas:')
+            ws_resultados.write(row, 1, self.dofa_amenazas)
+            row += 1
+            ws_resultados.write(row, 0, 'Total Variables:')
+            ws_resultados.write(row, 1, self.dofa_total)
+            row += 1
+            ws_resultados.write(row, 0, 'Tipo de Entorno:')
+            ws_resultados.write(row, 1, self.dofa_tipo_entorno or '')
+            row += 2
+            
+            # ANÁLISIS SPACE
+            ws_resultados.write(row, 0, 'ANÁLISIS SPACE TRADICIONAL', header_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Competitiva:')
+            ws_resultados.write(row, 1, self.space_trad_competitiva, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Financiera:')
+            ws_resultados.write(row, 1, self.space_trad_financiera, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Industria:')
+            ws_resultados.write(row, 1, self.space_trad_industria, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Entorno:')
+            ws_resultados.write(row, 1, self.space_trad_entorno, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Eje X:')
+            ws_resultados.write(row, 1, self.space_trad_eje_x, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Eje Y:')
+            ws_resultados.write(row, 1, self.space_trad_eje_y, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Recomendación:')
+            ws_resultados.write(row, 1, dict(self._fields['space_trad_recomendacion'].selection).get(self.space_trad_recomendacion, ''))
+            row += 2
+            
+            ws_resultados.write(row, 0, 'ANÁLISIS SPACE PONDERADO', header_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Competitiva:')
+            ws_resultados.write(row, 1, self.space_pond_competitiva, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Financiera:')
+            ws_resultados.write(row, 1, self.space_pond_financiera, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Industria:')
+            ws_resultados.write(row, 1, self.space_pond_industria, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Entorno:')
+            ws_resultados.write(row, 1, self.space_pond_entorno, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Eje X:')
+            ws_resultados.write(row, 1, self.space_pond_eje_x, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Eje Y:')
+            ws_resultados.write(row, 1, self.space_pond_eje_y, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Recomendación:')
+            ws_resultados.write(row, 1, dict(self._fields['space_pond_recomendacion'].selection).get(self.space_pond_recomendacion, ''))
+            row += 2
+            
+            # ANÁLISIS MCKINSEY
+            ws_resultados.write(row, 0, 'ANÁLISIS MCKINSEY', header_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Promedio Interno:')
+            ws_resultados.write(row, 1, self.mckinsey_prom_internas, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Promedio Externo:')
+            ws_resultados.write(row, 1, self.mckinsey_prom_externas, number_format)
+            row += 1
+            ws_resultados.write(row, 0, 'Recomendación:')
+            ws_resultados.write(row, 1, dict(self._fields['mckinsey_recomendacion'].selection).get(self.mckinsey_recomendacion, ''))
+            row += 2
+            
+            # ANÁLISIS VALOR PERCIBIDO
+            if self.competitor_ids:
+                ws_resultados.write(row, 0, 'ANÁLISIS VALOR PERCIBIDO', header_format)
+                row += 1
+                ws_resultados.write(row, 0, 'Desempeño Empresa:')
+                ws_resultados.write(row, 1, self.vp_desempeno_empresa, number_format)
+                row += 1
+                ws_resultados.write(row, 0, 'Desempeño Mercado:')
+                ws_resultados.write(row, 1, self.vp_desempeno_mercado, number_format)
+                row += 1
+                ws_resultados.write(row, 0, 'Número de Fortalezas:')
+                ws_resultados.write(row, 1, self.vp_num_fortalezas)
+                row += 1
+                ws_resultados.write(row, 0, 'Número de Debilidades:')
+                ws_resultados.write(row, 1, self.vp_num_debilidades)
+                row += 1
+                ws_resultados.write(row, 0, 'Posición Competitiva:')
+                ws_resultados.write(row, 1, dict(self._fields['vp_posicion_competitiva'].selection).get(self.vp_posicion_competitiva, '') if self.vp_posicion_competitiva else '')
+                row += 1
+                
+                if self.vp_fortalezas:
+                    ws_resultados.write(row, 0, 'Fortalezas:')
+                    ws_resultados.write(row, 1, self.vp_fortalezas)
+                    row += 1
+                
+                if self.vp_debilidades:
+                    ws_resultados.write(row, 0, 'Debilidades:')
+                    ws_resultados.write(row, 1, self.vp_debilidades)
+                    row += 1
+            
+            ws_resultados.set_column('A:A', 25)
+            ws_resultados.set_column('B:B', 50)
+            
+            # ===== HOJA 3: COMPETIDORES (si existen) =====
+            if self.competitor_ids:
+                ws_competidores = workbook.add_worksheet('Competidores')
+                ws_competidores.freeze_panes(1, 0)
+                
+                # Encabezados
+                headers_comp = ['Competidor', 'Promedio Desempeño', 'Variables Evaluadas']
+                for col, header in enumerate(headers_comp):
+                    ws_competidores.write(0, col, header, header_format)
+                
+                # Datos de competidores
+                for row, comp in enumerate(self.competitor_ids, start=1):
+                    ws_competidores.write(row, 0, comp.name)
+                    ws_competidores.write(row, 1, comp.promedio_desempeno, number_format)
+                    ws_competidores.write(row, 2, comp.num_variables)
+                
+                ws_competidores.set_column('A:A', 30)
+                ws_competidores.set_column('B:C', 20)
+            
+            # Cerrar workbook
+            workbook.close()
+            
+            # Obtener contenido del archivo
+            output.seek(0)
+            file_data = output.read()
+            output.close()
+            
+            # Guardar archivo
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"analisis_{self.user_id.login}_{timestamp}.xlsx"
+            
+            self.write({
+                'export_file': base64.b64encode(file_data),
+                'export_filename': filename
+            })
+            
+            _logger.info(f"Exportación exitosa: {filename}")
+            
+            # Retornar acción para descargar
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content?model=ai_mindnovation.strategic.analysis&id={self.id}&field=export_file&filename={filename}&download=true',
+                'target': 'self',
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error exportando análisis: {str(e)}")
+            raise UserError(f"Error al exportar el análisis a Excel: {str(e)}")
 
     def process_analysis(self):
         """
