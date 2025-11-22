@@ -1,0 +1,67 @@
+<odoo>
+    <!-- Vista de formulario para competidores -->
+    <record id="view_competitor_form" model="ir.ui.view">
+        <field name="name">ai_mindnovation.competitor.form</field>
+        <field name="model">ai_mindnovation.competitor</field>
+        <field name="arch" type="xml">
+            <form string="Competidor">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre del Competidor..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="strategic_analysis_id"/>
+                            <field name="promedio_desempeno" widget="float"/>
+                        </group>
+                        <group>
+                            <field name="num_variables"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Valores por Variable">
+                            <field name="competitor_value_ids">
+                                <tree editable="bottom">
+                                    <field name="variable_id" domain="[('strategic_analysis_id', '=', parent.strategic_analysis_id)]"/>
+                                    <field name="variable_palabras_clave" readonly="1"/>
+                                    <field name="variable_importancia" readonly="1"/>
+                                    <field name="value"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de lista para competidores -->
+    <record id="view_competitor_tree" model="ir.ui.view">
+        <field name="name">ai_mindnovation.competitor.tree</field>
+        <field name="model">ai_mindnovation.competitor</field>
+        <field name="arch" type="xml">
+            <tree string="Competidores">
+                <field name="name"/>
+                <field name="strategic_analysis_id"/>
+                <field name="promedio_desempeno" widget="float"/>
+                <field name="num_variables"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Acción para competidores -->
+    <record id="action_competitor" model="ir.actions.act_window">
+        <field name="name">Competidores</field>
+        <field name="res_model">ai_mindnovation.competitor</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú para competidores (opcional - también se puede acceder desde el análisis) -->
+    <menuitem id="menu_competitor" 
+              name="Competidores" 
+              parent="menu_strategic_analysis_root" 
+              action="action_competitor" 
+              sequence="30"/>
+</odoo>

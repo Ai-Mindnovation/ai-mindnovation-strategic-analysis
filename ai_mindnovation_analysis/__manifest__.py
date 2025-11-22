@@ -9,6 +9,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/strategic_analysis_views.xml',
+        'views/competitor_views.xml',
     ],
     'installable': True,
     'application': True,

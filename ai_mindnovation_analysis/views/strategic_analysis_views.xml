@@ -132,7 +132,50 @@
                             <field name="mckinsey_result" widget="text" readonly="1"/>
                         </page>
                         <page string="Valor Percibido">
-                            <field name="valor_percibido_result"/>
+                            <group>
+                                <group string="Información General">
+                                    <field name="num_competitors"/>
+                                    <button name="%(action_competitor)d" 
+                                            string="Gestionar Competidores" 
+                                            type="action" 
+                                            class="oe_highlight"
+                                            context="{'default_strategic_analysis_id': active_id}"/>
+                                </group>
+                                <group string="Desempeño Ponderado">
+                                    <field name="vp_desempeno_empresa" widget="float"/>
+                                    <field name="vp_desempeno_mercado" widget="float"/>
+                                </group>
+                            </group>
+                            <separator string="Análisis Competitivo"/>
+                            <group>
+                                <group string="Fortalezas vs Mercado">
+                                    <field name="vp_num_fortalezas"/>
+                                    <div class="alert alert-success" role="alert" style="margin-top: 10px;">
+                                        <field name="vp_fortalezas" widget="text" readonly="1"/>
+                                    </div>
+                                </group>
+                                <group string="Oportunidades de Mejora">
+                                    <field name="vp_num_debilidades"/>
+                                    <div class="alert alert-warning" role="alert" style="margin-top: 10px;">
+                                        <field name="vp_debilidades" widget="text" readonly="1"/>
+                                    </div>
+                                </group>
+                            </group>
+                            <separator string="Posición Competitiva"/>
+                            <div class="alert alert-info" role="alert" style="margin: 10px 0;">
+                                <strong>Posición en el Mercado:</strong>
+                                <field name="vp_posicion_competitiva" class="oe_inline" readonly="1"/>
+                            </div>
+                            <separator string="Competidores"/>
+                            <field name="competitor_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="promedio_desempeno"/>
+                                    <field name="num_variables"/>
+                                </tree>
+                            </field>
+                            <separator string="Detalles JSON (legacy)"/>
+                            <field name="valor_percibido_result" widget="text" readonly="1"/>
                         </page>
                     </notebook>
                 </sheet>

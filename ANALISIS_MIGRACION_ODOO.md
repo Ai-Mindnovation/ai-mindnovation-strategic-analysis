@@ -2,9 +2,9 @@
 ## AI-Mindnovation Strategic Analysis Module
 
 **Fecha:** 22 de Noviembre de 2025  
-**Estado del Proyecto:** En desarrollo - Análisis DOFA, SPACE y McKinsey completados (65%)  
-**Última actualización:** 22/11/2025 - DOFA, SPACE y McKinsey implementados y funcionales  
-**Próximos pasos:** Implementar análisis de Valor Percibido (requiere nuevos modelos)
+**Estado del Proyecto:** En desarrollo - Todas las funcionalidades de análisis completadas (80%)  
+**Última actualización:** 22/11/2025 - DOFA, SPACE, McKinsey y Valor Percibido implementados  
+**Próximos pasos:** Implementar visualizaciones gráficas (Chart.js)
 
 ---
 
@@ -20,23 +20,34 @@ Este es un módulo Odoo que replica funcionalidades de análisis estratégico qu
 - ✅ **ANÁLISIS DOFA COMPLETO** (implementado 22/11/2025)
 - ✅ **ANÁLISIS SPACE COMPLETO** (tradicional y ponderado - implementado 22/11/2025)
 - ✅ **ANÁLISIS MCKINSEY COMPLETO** (matriz Interna-Externa - implementado 22/11/2025)
+- ✅ **ANÁLISIS VALOR PERCIBIDO COMPLETO** (competidores y comparación - implementado 22/11/2025)
 - ✅ Botón "Procesar Análisis" funcional
-- ✅ Vistas con pestañas DOFA, SPACE y McKinsey mostrando todos los cálculos
+- ✅ Vistas con pestañas DOFA, SPACE, McKinsey y Valor Percibido
 - ✅ Cálculo automático con @api.depends (sin intervención manual)
+- ✅ Modelos de competidores con gestión de valores por variable
 
 ### SIGUIENTE TAREA PRIORITARIA
-**Implementar análisis de Valor Percibido** - Ver sección detallada abajo en "ANÁLISIS DE VALOR PERCIBIDO"
-Requiere crear nuevos modelos: `ai_mindnovation.competitor` y `ai_mindnovation.competitor.value`
+**Implementar visualizaciones gráficas con Chart.js** - Ver sección "VISUALIZACIONES GRÁFICAS"
+✅ **TODAS LAS FUNCIONALIDADES DE ANÁLISIS COMPLETADAS**
+Faltan: Gráficos interactivos, exportación Excel, validaciones robustas
 
 ### ARCHIVOS MODIFICADOS RECIENTEMENTE (22/11/2025)
 1. `ai_mindnovation_analysis/models/strategic_analysis.py`:
    - Agregado método `_compute_dofa_analysis()` con 20+ campos DOFA
    - Agregado método `_compute_space_analysis()` con 18 campos SPACE (tradicional y ponderado)
-   - Agregado método `_compute_mckinsey_analysis()` con 3 campos McKinsey (prom_internas, prom_externas, recomendacion)
-2. `ai_mindnovation_analysis/views/strategic_analysis_views.xml`:
-   - Agregada pestaña "Análisis DOFA" con visualización completa
-   - Agregada pestaña "Análisis SPACE" con comparación lado a lado (Tradicional vs Ponderado)
-   - Agregada pestaña "Análisis McKinsey" con matriz 3x3 y recomendaciones estratégicas
+   - Agregado método `_compute_mckinsey_analysis()` con 3 campos McKinsey
+   - Agregado método `_compute_valor_percibido()` con 8 campos Valor Percibido
+2. `ai_mindnovation_analysis/models/competitor.py` (NUEVO):
+   - Modelo completo para gestión de competidores
+3. `ai_mindnovation_analysis/models/competitor_value.py` (NUEVO):
+   - Modelo para valores de competidores por variable
+4. `ai_mindnovation_analysis/views/strategic_analysis_views.xml`:
+   - Agregada pestaña "Análisis DOFA"
+   - Agregada pestaña "Análisis SPACE"
+   - Agregada pestaña "Análisis McKinsey"
+   - Agregada pestaña "Valor Percibido" con gestión de competidores
+5. `ai_mindnovation_analysis/views/competitor_views.xml` (NUEVO):
+   - Vistas completas para gestión de competidores
 
 ### INSTRUCCIONES PARA PROBAR
 1. Actualizar módulo en Odoo: Apps → AI Mindnovation → Actualizar
@@ -49,7 +60,7 @@ Requiere crear nuevos modelos: `ai_mindnovation.competitor` y `ai_mindnovation.c
 ## 📊 RESUMEN EJECUTIVO
 
 ### Estado Actual
-✅ **Completado (65%):**
+✅ **Completado (80%):**
 - Estructura básica del módulo Odoo
 - Modelos de datos (`strategic_analysis`, `analysis_variable`)
 - Vistas básicas (formulario, lista, menú)
@@ -76,9 +87,17 @@ Requiere crear nuevos modelos: `ai_mindnovation.competitor` y `ai_mindnovation.c
   - Vista con explicación de matriz y recomendación destacada
   - Método `_compute_mckinsey_analysis()` funcional
 
-❌ **Pendiente (35%):**
-- **Análisis de Valor Percibido** ← SIGUIENTE TAREA (requiere nuevos modelos)
-- Análisis de Valor Percibido (requiere nuevos modelos)
+- **✅ ANÁLISIS VALOR PERCIBIDO COMPLETO (implementado 22/11/2025)**
+  - 2 nuevos modelos (competitor, competitor_value)
+  - 8 campos computed (desempeño empresa/mercado, fortalezas/debilidades, posición competitiva)
+  - Cálculo automático de desempeño ponderado
+  - Identificación de fortalezas y debilidades vs mercado
+  - 5 niveles de posición competitiva (Líder, Por encima, Promedio, Por debajo, Rezagado)
+  - Vista con gestión de competidores y valores por variable
+  - Método `_compute_valor_percibido()` funcional
+
+❌ **Pendiente (20%):**
+- **Visualizaciones gráficas (Chart.js)** ← SIGUIENTE TAREA
 - Visualizaciones gráficas interactivas (Chart.js o Plotly)
 - Exportación de resultados a Excel
 - Sistema de insights automáticos

@@ -252,12 +252,76 @@ class StrategicAnalysis(models.Model):
     ], string='Recomendación McKinsey', compute='_compute_mckinsey_analysis', store=True,
        help='Estrategia recomendada según posición en matriz McKinsey')
 
-    # Relación con variables de análisis
+    # ===== CAMPOS VALOR PERCIBIDO =====
+    vp_desempeno_empresa = fields.Float(
+        string='Desempeño Empresa (Ponderado)',
+        compute='_compute_valor_percibido',
+        store=True,
+        digits=(12, 4),
+        help='Desempeño ponderado de la empresa'
+    )
+    vp_desempeno_mercado = fields.Float(
+        string='Desempeño Mercado (Ponderado)',
+        compute='_compute_valor_percibido',
+        store=True,
+        digits=(12, 4),
+        help='Desempeño promedio ponderado del mercado (todos los competidores)'
+    )
+    vp_num_fortalezas = fields.Integer(
+        string='Número de Fortalezas',
+        compute='_compute_valor_percibido',
+        store=True,
+        help='Atributos donde la empresa supera al mercado'
+    )
+    vp_num_debilidades = fields.Integer(
+        string='Número de Debilidades',
+        compute='_compute_valor_percibido',
+        store=True,
+        help='Atributos donde la empresa está por debajo del mercado'
+    )
+    vp_fortalezas = fields.Text(
+        string='Fortalezas Detalladas',
+        compute='_compute_valor_percibido',
+        store=True,
+        help='Lista de atributos donde la empresa destaca'
+    )
+    vp_debilidades = fields.Text(
+        string='Oportunidades de Mejora',
+        compute='_compute_valor_percibido',
+        store=True,
+        help='Lista de atributos a mejorar'
+    )
+    vp_posicion_competitiva = fields.Selection([
+        ('lider', 'Líder de Mercado'),
+        ('por_encima', 'Por Encima del Mercado'),
+        ('promedio', 'En el Promedio'),
+        ('por_debajo', 'Por Debajo del Mercado'),
+        ('rezagado', 'Rezagado')
+    ], string='Posición Competitiva', compute='_compute_valor_percibido', store=True,
+       help='Posición relativa de la empresa respecto al mercado')
+
+    # Relaciones
     analysis_variable_ids = fields.One2many(
         'ai_mindnovation.analysis.variable',
         'strategic_analysis_id',
         string='Variables de Análisis'
     )
+    competitor_ids = fields.One2many(
+        'ai_mindnovation.competitor',
+        'strategic_analysis_id',
+        string='Competidores'
+    )
+    num_competitors = fields.Integer(
+        string='Número de Competidores',
+        compute='_compute_num_competitors',
+        store=True
+    )
+
+    @api.depends('competitor_ids')
+    def _compute_num_competitors(self):
+        """Cuenta el número de competidores"""
+        for record in self:
+            record.num_competitors = len(record.competitor_ids)
 
     @api.depends('analysis_variable_ids', 'analysis_variable_ids.dofa')
     def _compute_dofa_analysis(self):
@@ -594,6 +658,122 @@ class StrategicAnalysis(models.Model):
                 }
             }
             record.mckinsey_result = json.dumps(mckinsey_data, indent=2, ensure_ascii=False)
+
+    @api.depends('analysis_variable_ids', 'analysis_variable_ids.media_importancia',
+                 'analysis_variable_ids.media_desemp', 'competitor_ids',
+                 'competitor_ids.competitor_value_ids', 'competitor_ids.competitor_value_ids.value')
+    def _compute_valor_percibido(self):
+        """
+        Calcula el análisis de Valor Percibido.
+        Compara el desempeño de la empresa con el promedio del mercado (competidores).
+        Replica la funcionalidad de valor_percibido_streamlit.py
+        """
+        for record in self:
+            if not record.analysis_variable_ids or not record.competitor_ids:
+                # Inicializar campos en cero si no hay datos suficientes
+                record.vp_desempeno_empresa = 0.0
+                record.vp_desempeno_mercado = 0.0
+                record.vp_num_fortalezas = 0
+                record.vp_num_debilidades = 0
+                record.vp_fortalezas = ''
+                record.vp_debilidades = ''
+                record.vp_posicion_competitiva = False
+                record.valor_percibido_result = json.dumps({
+                    'error': 'Se requieren variables y al menos un competidor para análisis de Valor Percibido'
+                })
+                continue
+            
+            variables = record.analysis_variable_ids
+            
+            # Calcular importancia relativa
+            total_importancia = sum(variables.mapped('media_importancia'))
+            if total_importancia == 0:
+                record.vp_desempeno_empresa = 0.0
+                record.vp_desempeno_mercado = 0.0
+                record.vp_num_fortalezas = 0
+                record.vp_num_debilidades = 0
+                record.vp_fortalezas = ''
+                record.vp_debilidades = ''
+                record.vp_posicion_competitiva = False
+                record.valor_percibido_result = json.dumps({'error': 'Importancia total es cero'})
+                continue
+            
+            # Calcular desempeño ponderado de la empresa
+            desempeno_empresa = sum(
+                (v.media_importancia / total_importancia) * v.media_desemp
+                for v in variables
+            )
+            
+            # Calcular promedio de mercado (todos los competidores)
+            # Para cada variable, calcular el promedio de todos los competidores
+            desempeno_mercado_list = []
+            fortalezas = []
+            debilidades = []
+            
+            for variable in variables:
+                # Obtener valores de todos los competidores para esta variable
+                comp_values = self.env['ai_mindnovation.competitor.value'].search([
+                    ('competitor_id', 'in', record.competitor_ids.ids),
+                    ('variable_id', '=', variable.id)
+                ])
+                
+                if comp_values:
+                    # Promedio de competidores para esta variable
+                    prom_comp_var = sum(comp_values.mapped('value')) / len(comp_values)
+                    
+                    # Calcular importancia relativa de esta variable
+                    imp_relativa = variable.media_importancia / total_importancia
+                    
+                    # Desempeño ponderado del mercado para esta variable
+                    desempeno_mercado_list.append(imp_relativa * prom_comp_var)
+                    
+                    # Identificar fortalezas y debilidades
+                    if variable.media_desemp > prom_comp_var:
+                        fortalezas.append(variable.palabras_clave or variable.descripcion or f"Variable {variable.nro}")
+                    elif variable.media_desemp < prom_comp_var:
+                        debilidades.append(variable.palabras_clave or variable.descripcion or f"Variable {variable.nro}")
+            
+            desempeno_mercado = sum(desempeno_mercado_list) if desempeno_mercado_list else 0.0
+            
+            # Asignar valores
+            record.vp_desempeno_empresa = round(desempeno_empresa, 4)
+            record.vp_desempeno_mercado = round(desempeno_mercado, 4)
+            record.vp_num_fortalezas = len(fortalezas)
+            record.vp_num_debilidades = len(debilidades)
+            record.vp_fortalezas = '\n'.join(f"• {f}" for f in fortalezas[:10]) if fortalezas else 'No se identificaron fortalezas claras'
+            record.vp_debilidades = '\n'.join(f"• {d}" for d in debilidades[:10]) if debilidades else 'No se identificaron oportunidades de mejora'
+            
+            # Determinar posición competitiva
+            if desempeno_empresa > 0:
+                diferencia = ((desempeno_empresa - desempeno_mercado) / desempeno_empresa) * 100
+                
+                if diferencia > 15:
+                    posicion = 'lider'
+                elif diferencia > 5:
+                    posicion = 'por_encima'
+                elif diferencia >= -5:
+                    posicion = 'promedio'
+                elif diferencia >= -15:
+                    posicion = 'por_debajo'
+                else:
+                    posicion = 'rezagado'
+            else:
+                posicion = 'rezagado'
+            
+            record.vp_posicion_competitiva = posicion
+            
+            # Actualizar campo legacy (JSON)
+            vp_data = {
+                'desempeno_empresa': record.vp_desempeno_empresa,
+                'desempeno_mercado': record.vp_desempeno_mercado,
+                'num_fortalezas': record.vp_num_fortalezas,
+                'num_debilidades': record.vp_num_debilidades,
+                'posicion_competitiva': posicion.replace('_', ' ').title(),
+                'fortalezas': fortalezas[:5],
+                'debilidades': debilidades[:5],
+                'num_competidores': len(record.competitor_ids)
+            }
+            record.valor_percibido_result = json.dumps(vp_data, indent=2, ensure_ascii=False)
 
     def process_analysis(self):
         """

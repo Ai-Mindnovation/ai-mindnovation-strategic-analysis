@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_strategic_analysis_admin,access_strategic_analysis_admin,model_ai_mindnovation_strategic_analysis,base.group_system,1,1,1,1
 access_analysis_variable_admin,access_analysis_variable_admin,model_ai_mindnovation_analysis_variable,base.group_system,1,1,1,1
+access_competitor_admin,access_competitor_admin,model_ai_mindnovation_competitor,base.group_system,1,1,1,1
+access_competitor_value_admin,access_competitor_value_admin,model_ai_mindnovation_competitor_value,base.group_system,1,1,1,1
