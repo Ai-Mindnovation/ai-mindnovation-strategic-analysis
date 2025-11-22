@@ -316,12 +316,28 @@ class StrategicAnalysis(models.Model):
         compute='_compute_num_competitors',
         store=True
     )
+    
+    # ===== CAMPOS PARA WIDGETS DE GRÁFICOS =====
+    chart_dofa = fields.Char(string='Gráfico DOFA', compute='_compute_chart_fields')
+    chart_space_trad = fields.Char(string='Gráfico SPACE Tradicional', compute='_compute_chart_fields')
+    chart_space_pond = fields.Char(string='Gráfico SPACE Ponderado', compute='_compute_chart_fields')
+    chart_mckinsey = fields.Char(string='Gráfico McKinsey', compute='_compute_chart_fields')
+    chart_valor_percibido = fields.Char(string='Gráfico Valor Percibido', compute='_compute_chart_fields')
 
     @api.depends('competitor_ids')
     def _compute_num_competitors(self):
         """Cuenta el número de competidores"""
         for record in self:
             record.num_competitors = len(record.competitor_ids)
+    
+    def _compute_chart_fields(self):
+        """Campos dummy para renderizar widgets de gráficos"""
+        for record in self:
+            record.chart_dofa = 'dofa'
+            record.chart_space_trad = 'space_trad'
+            record.chart_space_pond = 'space_pond'
+            record.chart_mckinsey = 'mckinsey'
+            record.chart_valor_percibido = 'valor_percibido'
 
     @api.depends('analysis_variable_ids', 'analysis_variable_ids.dofa')
     def _compute_dofa_analysis(self):

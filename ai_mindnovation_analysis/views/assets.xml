@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Assets para backend (incluye Chart.js y widgets personalizados) -->
+        <template id="assets_backend" inherit_id="web.assets_backend">
+            <!-- Chart.js library -->
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/ai_mindnovation_analysis/static/src/lib/chart.min.js"/>
+                <!-- JavaScript widgets -->
+                <script type="text/javascript" src="/ai_mindnovation_analysis/static/src/js/chart_widgets.js"/>
+                <!-- CSS personalizado -->
+                <link rel="stylesheet" type="text/css" href="/ai_mindnovation_analysis/static/src/css/charts.css"/>
+            </xpath>
+        </template>
+
+        <!-- Templates XML para OWL -->
+        <template id="chart_templates" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <xml src="/ai_mindnovation_analysis/static/src/xml/chart_templates.xml"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

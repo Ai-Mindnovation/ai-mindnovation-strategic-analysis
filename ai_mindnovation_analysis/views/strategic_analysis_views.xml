@@ -71,6 +71,8 @@
                                     </div>
                                 </group>
                             </group>
+                            <separator string="Visualización Gráfica"/>
+                            <field name="chart_dofa" widget="dofa_pie_chart" nolabel="1"/>
                             <separator string="Detalles JSON (legacy)"/>
                             <field name="dofa_result" widget="text" readonly="1"/>
                         </page>
@@ -103,6 +105,10 @@
                                     </div>
                                 </group>
                             </group>
+                            <separator string="Visualización Gráfica - SPACE Tradicional"/>
+                            <field name="chart_space_trad" widget="space_radar_chart" options="{'tipo': 'tradicional'}" nolabel="1"/>
+                            <separator string="Visualización Gráfica - SPACE Ponderado"/>
+                            <field name="chart_space_pond" widget="space_radar_chart" options="{'tipo': 'ponderado'}" nolabel="1"/>
                             <separator string="Detalles JSON (legacy)"/>
                             <field name="space_result" widget="text" readonly="1"/>
                         </page>
@@ -128,6 +134,8 @@
                                 <strong>Estrategia Recomendada:</strong>
                                 <field name="mckinsey_recomendacion" class="oe_inline" readonly="1"/>
                             </div>
+                            <separator string="Visualización Gráfica - Matriz McKinsey 3x3"/>
+                            <field name="chart_mckinsey" widget="mckinsey_scatter_chart" nolabel="1"/>
                             <separator string="Detalles JSON (legacy)"/>
                             <field name="mckinsey_result" widget="text" readonly="1"/>
                         </page>
@@ -174,6 +182,8 @@
                                     <field name="num_variables"/>
                                 </tree>
                             </field>
+                            <separator string="Visualización Gráfica - Comparación Competitiva"/>
+                            <field name="chart_valor_percibido" widget="valor_percibido_radar_chart" nolabel="1"/>
                             <separator string="Detalles JSON (legacy)"/>
                             <field name="valor_percibido_result" widget="text" readonly="1"/>
                         </page>

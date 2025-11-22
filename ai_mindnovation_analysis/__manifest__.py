@@ -5,12 +5,21 @@
     'author': 'Ai-Mindnovation',
     'category': 'Tools',
     'website': 'https://ai-mindnovation.com',
-    'depends': ['base'],
+    'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',
+        'views/assets.xml',
         'views/strategic_analysis_views.xml',
         'views/competitor_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'ai_mindnovation_analysis/static/src/lib/chart.min.js',
+            'ai_mindnovation_analysis/static/src/js/chart_widgets.js',
+            'ai_mindnovation_analysis/static/src/css/charts.css',
+            'ai_mindnovation_analysis/static/src/xml/chart_templates.xml',
+        ],
+    },
     'installable': True,
     'application': True,
     'license': 'LGPL-3',

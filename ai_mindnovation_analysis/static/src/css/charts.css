@@ -1,0 +1,36 @@
+/* Estilos para contenedores de gráficos */
+.o_chart_dofa_container,
+.o_chart_space_container,
+.o_chart_mckinsey_container,
+.o_chart_valor_percibido_container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+}
+
+/* Ajuste para canvas dentro de los contenedores */
+.o_chart_dofa_container canvas,
+.o_chart_space_container canvas,
+.o_chart_mckinsey_container canvas,
+.o_chart_valor_percibido_container canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Estilos para pestañas de análisis */
+.o_notebook_page .alert {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.o_notebook_page .alert strong {
+    font-size: 1.1em;
+}
+
+/* Separadores en vistas */
+.o_form_sheet_bg .o_group .o_separator {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}

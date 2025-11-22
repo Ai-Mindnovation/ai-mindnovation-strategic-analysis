@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    
+    <!-- Template para gráfico DOFA Pie Chart -->
+    <t t-name="ai_mindnovation_analysis.DofaPieChart" owl="1">
+        <div class="o_chart_dofa_container" style="position: relative; height: 400px; width: 100%;">
+            <canvas t-ref="dofaCanvas"></canvas>
+        </div>
+    </t>
+
+    <!-- Template para gráfico SPACE Radar Chart -->
+    <t t-name="ai_mindnovation_analysis.SpaceRadarChart" owl="1">
+        <div class="o_chart_space_container" style="position: relative; height: 450px; width: 100%;">
+            <canvas t-ref="spaceCanvas"></canvas>
+        </div>
+    </t>
+
+    <!-- Template para gráfico McKinsey Scatter Chart -->
+    <t t-name="ai_mindnovation_analysis.McKinseyScatterChart" owl="1">
+        <div class="o_chart_mckinsey_container" style="position: relative; height: 500px; width: 100%;">
+            <canvas t-ref="mckinseyCanvas"></canvas>
+        </div>
+    </t>
+
+    <!-- Template para gráfico Valor Percibido Radar Chart -->
+    <t t-name="ai_mindnovation_analysis.ValorPercibidoRadarChart" owl="1">
+        <div class="o_chart_valor_percibido_container" style="position: relative; height: 500px; width: 100%;">
+            <canvas t-ref="valorPercibidoCanvas"></canvas>
+        </div>
+    </t>
+
+</templates>
