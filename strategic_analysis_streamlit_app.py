@@ -226,18 +226,22 @@ class StrategicAnalysis:
             
             # Clasificar entorno
             prop_internas = dofa_internas / total_vars
+            prop_externas = dofa_externas / total_vars
             prop_positivas = dofa_positivas / total_vars
-            
-            if prop_internas >= 0.6:
+            prop_negativas = dofa_negativas / total_vars
+
+            # Clasificación Interno/Externo/Equilibrado
+            if prop_internas > 0.6:
                 tipo_int_ext = 'Interno'
-            elif prop_internas <= 0.4:
+            elif prop_externas > 0.6:
                 tipo_int_ext = 'Externo'
             else:
                 tipo_int_ext = 'Equilibrado'
-            
-            if prop_positivas >= 0.6:
+
+            # Clasificación Positivo/Negativo/Neutro
+            if prop_positivas > 0.6:
                 tipo_pos_neg = 'Positivo'
-            elif prop_positivas <= 0.4:
+            elif prop_negativas > 0.6:
                 tipo_pos_neg = 'Negativo'
             else:
                 tipo_pos_neg = 'Neutro'
