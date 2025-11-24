@@ -48,13 +48,6 @@
                 <field name="promedio_desempeno" widget="float"/>
                 <field name="num_variables"/>
             </tree>
-            <header>
-                <button name="%(action_import_competitors_wizard)d"
-                        string="Importar desde Excel"
-                        type="action"
-                        class="btn-secondary"
-                        context="{'active_id': active_id}"/>
-            </header>
         </field>
     </record>
 

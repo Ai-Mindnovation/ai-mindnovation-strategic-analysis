@@ -120,17 +120,21 @@ Nro | Palabras Clave    | Descripción                      | Competidor A | Com
 
 3. Estado cambia a **"Procesado"** ✅
 
-### **Paso 5: Agregar Competidores (Opcional)**
+
+### **Paso 5: Agregar o Subir Competidores (Opcional)**
 
 Para el **Análisis de Valor Percibido**, necesitas agregar competidores:
 
 1. En la pestaña **"Valor Percibido"**
-2. Click en **"Gestionar Competidores"**
-3. Agrega cada competidor:
+2. Click en **"Gestionar Competidores"** para agregarlos manualmente
+3. O utiliza el botón **"Subir Competidores"** para importar desde Excel
    - **Nombre del Competidor**
    - Para cada variable, ingresa su **desempeño** (1-5)
 
 **💡 Tip:** Puedes importar desde Excel usando el archivo `Formulario_datos_entrada_analisis_valor_percibido.xlsx`
+
+> **NOTA IMPORTANTE:**
+> La función de importación de competidores desde Excel está en construcción. Actualmente, el sistema procesa las hojas `importancia` y `desempeño` y mapea los campos automáticamente, pero puede presentar errores o comportamientos inesperados. Si tienes problemas, agrega los competidores manualmente mientras se estabiliza esta función.
 
 4. Regresa al análisis y presiona **"Procesar Análisis"** nuevamente
 5. Se calculará automáticamente:

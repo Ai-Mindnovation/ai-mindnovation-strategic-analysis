@@ -20,6 +20,7 @@
         <field name="res_model">ai_mindnovation.import.competitors.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="binding_model_id" ref="model_ai_mindnovation_competitor"/>
         <field name="context">{}</field>
     </record>
 </odoo>

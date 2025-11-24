@@ -146,11 +146,19 @@
                             <group>
                                 <group string="Información General">
                                     <field name="num_competitors"/>
-                                    <button name="%(ai_mindnovation_analysis.action_competitor)d" 
+                                        <button name="%(ai_mindnovation_analysis.action_competitor)d" 
                                             string="Gestionar Competidores" 
                                             type="action" 
                                             class="oe_highlight"
                                             context="{'default_strategic_analysis_id': active_id}"/>
+                                        <button name="%(action_import_competitors_wizard)d"
+                                            string="Subir Competidores"
+                                            type="action"
+                                            class="btn-secondary oe_stat_button"
+                                            icon="fa-upload"
+                                            context="{'active_id': active_id}"
+                                            attrs="{'invisible': [('num_competitors', '=', False)]}"
+                                            title="Importar competidores desde archivo Excel. Permite procesamiento avanzado y validación automática."/>
                                 </group>
                                 <group string="Desempeño Ponderado">
                                     <field name="vp_desempeno_empresa" widget="float"/>
