@@ -6,10 +6,10 @@
             <form string="Análisis Estratégico AI Mindnovation">
                 <header>
                     <button name="process_analysis" string="Procesar Análisis" type="object" 
-                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            class="btn-primary" invisible="state != 'draft'"/>
                     <button name="export_to_excel" string="Exportar a Excel" type="object" 
                             class="btn-success" icon="fa-download" 
-                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            invisible="state == 'draft'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,processed,done"/>
                 </header>
                 <sheet>
@@ -31,7 +31,7 @@
                     <notebook>
                         <page string="Variables">
                             <field name="analysis_variable_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="nro"/>
                                     <field name="palabras_clave"/>
                                     <field name="descripcion"/>
@@ -39,7 +39,7 @@
                                     <field name="clasificacion"/>
                                     <field name="media_importancia"/>
                                     <field name="media_desemp"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Análisis DOFA">
@@ -149,15 +149,13 @@
                                         <button name="%(ai_mindnovation_analysis.action_competitor)d" 
                                             string="Gestionar Competidores" 
                                             type="action" 
-                                            class="oe_highlight"
-                                            context="{'default_strategic_analysis_id': active_id}"/>
+                                            class="oe_highlight"/>
                                         <button name="%(action_import_competitors_wizard)d"
                                             string="Subir Competidores"
                                             type="action"
                                             class="btn-secondary oe_stat_button"
                                             icon="fa-upload"
-                                            context="{'active_id': active_id}"
-                                            attrs="{'invisible': [('num_competitors', '=', False)]}"
+                                            invisible="not num_competitors"
                                             title="Importar competidores desde archivo Excel. Permite procesamiento avanzado y validación automática."/>
                                 </group>
                                 <group string="Desempeño Ponderado">
@@ -187,11 +185,11 @@
                             </div>
                             <separator string="Competidores"/>
                             <field name="competitor_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="promedio_desempeno"/>
                                     <field name="num_variables"/>
-                                </tree>
+                                </list>
                             </field>
                             <separator string="Visualización Gráfica - Comparación Competitiva"/>
                             <field name="chart_valor_percibido" widget="valor_percibido_radar_chart" nolabel="1"/>
@@ -208,19 +206,19 @@
         <field name="name">ai_mindnovation.strategic.analysis.tree</field>
         <field name="model">ai_mindnovation.strategic.analysis</field>
         <field name="arch" type="xml">
-            <tree string="Análisis Estratégico">
+            <list string="Análisis Estratégico">
                 <field name="name"/>
                 <field name="user_id"/>
                 <field name="date"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_strategic_analysis" model="ir.actions.act_window">
         <field name="name">Análisis Estratégico</field>
         <field name="res_model">ai_mindnovation.strategic.analysis</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_strategic_analysis_root" name="AI Mindnovation" sequence="10"/>
