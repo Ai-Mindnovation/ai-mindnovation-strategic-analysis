@@ -2,9 +2,9 @@
     'name': 'AI Mindnovation Strategic Analysis',
     'version': '1.0.0',
     'summary': 'Análisis estratégico avanzado: DOFA, SPACE, McKinsey, Valor Percibido',
-    'author': 'Ai-Mindnovation',
+    'author': 'AI-MindNovation',
     'category': 'Tools',
-    'website': 'https://ai-mindnovation.com',
+    'website': 'https://www.ai-mindnovation.com',
     'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',
@@ -26,5 +26,6 @@
     'description': """
         Módulo nativo Odoo para análisis estratégico avanzado, replicando la funcionalidad de la app Streamlit.
         Incluye análisis DOFA, SPACE, McKinsey y Valor Percibido, con integración total a usuarios y seguridad Odoo.
-    """
+    """,
+    'images': ['static/description/banner.png', 'static/description/icon.png'],
 }
